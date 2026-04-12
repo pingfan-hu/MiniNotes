@@ -10,7 +10,8 @@
     "@codemirror/lang-markdown": "^6",
     "@codemirror/language": "^6",
     "@codemirror/state": "^6",
-    "@codemirror/view": "^6"
+    "@codemirror/view": "^6",
+    "marked": "^18.0.0"
   },
   "devDependencies": {
     "esbuild": "^0.25"

@@ -11,6 +11,7 @@ struct MarkdownEditorView: NSViewRepresentable {
     func makeNSView(context: Context) -> WKWebView {
         let userContent = WKUserContentController()
         userContent.add(context.coordinator, name: "contentChanged")
+        userContent.add(context.coordinator, name: "openURL")
 
         let config = WKWebViewConfiguration()
         config.userContentController = userContent
@@ -107,8 +108,17 @@ struct MarkdownEditorView: NSViewRepresentable {
             _ userContentController: WKUserContentController,
             didReceive message: WKScriptMessage
         ) {
-            guard message.name == "contentChanged", let text = message.body as? String else { return }
-            notesStore?.save(text)
+            switch message.name {
+            case "contentChanged":
+                guard let text = message.body as? String else { return }
+                notesStore?.save(text)
+            case "openURL":
+                guard let urlString = message.body as? String,
+                      let url = URL(string: urlString) else { return }
+                NSWorkspace.shared.open(url)
+            default:
+                break
+            }
         }
 
         // MARK: WKNavigationDelegate
