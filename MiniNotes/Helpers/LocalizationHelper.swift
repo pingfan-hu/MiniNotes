@@ -1,14 +1,20 @@
 import Foundation
 
+extension Notification.Name {
+    static let miniNotesTogglePin = Notification.Name("MiniNotesTogglePin")
+    static let miniNotesClosePopover = Notification.Name("MiniNotesClosePopover")
+}
+
 enum L {
     private static var isChinese: Bool {
         Locale.preferredLanguages.first?.hasPrefix("zh") ?? false
     }
 
     // Toolbar
-    static var buttonObsidian: String { "Obsidian" }
-    static var buttonChoose: String { isChinese ? "选择" : "Choose" }
+    static var buttonOpenInObsidian: String { isChinese ? "在Obsidian中打开" : "Open in Obsidian" }
     static var autoSaved: String { isChinese ? "已保存" : "Auto-saved" }
+    static var pinTooltipPin: String { isChinese ? "固定窗口" : "Keep window open" }
+    static var pinTooltipUnpin: String { isChinese ? "取消固定" : "Auto-hide window" }
 
     // Settings
     static var settingsTitle: String { isChinese ? "文件位置" : "File Location" }

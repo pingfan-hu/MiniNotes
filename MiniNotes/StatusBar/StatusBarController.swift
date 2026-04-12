@@ -6,6 +6,7 @@ class StatusBarController {
     private var popover: NSPopover
     private let notesStore = NotesStore()
     private var eventMonitor: EventMonitor?
+    private var isPinned = false
 
     init() {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
@@ -28,6 +29,32 @@ class StatusBarController {
             if let self, self.popover.isShown, NSApp.modalWindow == nil {
                 self.closePopover()
             }
+        }
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handlePinToggle(_:)),
+            name: .miniNotesTogglePin,
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleForceClose),
+            name: .miniNotesClosePopover,
+            object: nil
+        )
+    }
+
+    @objc private func handleForceClose() {
+        closePopover()
+    }
+
+    @objc private func handlePinToggle(_ notification: Notification) {
+        isPinned = notification.object as? Bool ?? false
+        if isPinned {
+            eventMonitor?.stop()
+        } else if popover.isShown {
+            eventMonitor?.start()
         }
     }
 
@@ -65,7 +92,9 @@ class StatusBarController {
         // Dropping to .floating (3) lets the IME appear above us while still keeping
         // us above normal app windows (level 0).
         popover.contentViewController?.view.window?.level = .floating
-        eventMonitor?.start()
+        if !isPinned {
+            eventMonitor?.start()
+        }
     }
 
     private func closePopover() {
