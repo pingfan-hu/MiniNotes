@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(think)",
+      "Bash(brew install:*)",
+      "Bash(npm --version)",
+      "Bash(xcodegen generate:*)",
+      "Bash(open:*)",
+      "Bash(pkill -x MiniNotes)",
+      "Bash(npm install:*)",
+      "Bash(npm run:*)",
+      "Bash(node:*)",
+      "Bash(xcodebuild -project MiniNotes.xcodeproj -scheme MiniNotes -configuration Debug build CODE_SIGN_IDENTITY=\"\" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO)",
+      "Bash(xcodebuild -scheme MiniNotes -configuration Debug build)"
+    ]
+  }
+}
