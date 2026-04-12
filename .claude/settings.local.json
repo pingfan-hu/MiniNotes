@@ -24,7 +24,15 @@
       "Bash(bash:*)",
       "Bash(echo \"Exit: $?\")",
       "Bash(xcodebuild -project MiniNotes.xcodeproj -scheme MiniNotes -configuration Debug CODE_SIGN_IDENTITY=\"\" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO build)",
-      "Bash(xcodebuild -project MiniNotes.xcodeproj -scheme MiniNotes -configuration Debug CODE_SIGN_IDENTITY=\"\" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO build -quiet)"
+      "Bash(xcodebuild -project MiniNotes.xcodeproj -scheme MiniNotes -configuration Debug CODE_SIGN_IDENTITY=\"\" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO build -quiet)",
+      "WebFetch(domain:github.com)",
+      "mcp__plugin_everything-claude-code_github__get_file_contents",
+      "Read(//private/tmp/**)",
+      "Bash(curl -s \"https://raw.githubusercontent.com/tw93/MiaoYan/main/Views/MPreviewView.swift\")",
+      "Bash(curl -s \"https://raw.githubusercontent.com/tw93/MiaoYan/main/Views/EditorSplitView.swift\")",
+      "Bash(curl -s \"https://raw.githubusercontent.com/tw93/MiaoYan/main/Controllers/ViewController%2BEditor.swift\")",
+      "Bash(curl -s \"https://raw.githubusercontent.com/tw93/MiaoYan/main/Helpers/CustomTextStorage.swift\")",
+      "Bash(curl -s \"https://raw.githubusercontent.com/tw93/MiaoYan/main/Helpers/MarkdownRuleHighlighter.swift\")"
     ]
   },
   "hooks": {

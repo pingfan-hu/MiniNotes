@@ -57,16 +57,99 @@ class CheckboxWidget extends WidgetType {
   }
 }
 
+// Parse each table cell's source position for editable mapping.
+function parseTableCells(state, tableFrom, tableTo) {
+  const docLen = state.doc.length
+  const rows = []
+  let linePos = tableFrom
+  while (linePos <= Math.min(tableTo, docLen - 1)) {
+    const ln = state.doc.lineAt(linePos)
+    const lineText = state.doc.sliceString(ln.from, Math.min(ln.to, docLen))
+    const isSeparator = /^\s*\|[\s|:-]+\|\s*$/.test(lineText)
+    if (isSeparator) {
+      rows.push({ isSeparator: true, cells: [] })
+    } else {
+      const cells = []
+      const pipes = []
+      for (let i = 0; i < lineText.length; i++) {
+        if (lineText[i] === '|') pipes.push(i)
+      }
+      for (let i = 0; i + 1 < pipes.length; i++) {
+        const start = pipes[i] + 1
+        const end   = pipes[i + 1]
+        cells.push({ from: ln.from + start, to: ln.from + end, text: lineText.slice(start, end).trim() })
+      }
+      rows.push({ isSeparator: false, cells })
+    }
+    if (ln.from >= Math.min(tableTo, docLen - 1)) break
+    linePos = ln.to + 1
+  }
+  return rows
+}
+
 class TableWidget extends WidgetType {
-  constructor(html) { super(); this.html = html }
+  constructor(html, rows) { super(); this.html = html; this.rows = rows }
   eq(o) { return this.html === o.html }
-  ignoreEvent() { return false }
-  toDOM() {
+  ignoreEvent() { return true }  // let contenteditable handle all events
+  toDOM(view) {
     const wrap = document.createElement("div")
     wrap.className = "lp-table-wrap"
     wrap.innerHTML = this.html
+
+    const pending = {}  // from → { to, insert }
+
+    const domTrs = [...wrap.querySelectorAll("tr")]
+    let dataIdx = 0
+    domTrs.forEach(domTr => {
+      while (dataIdx < this.rows.length && this.rows[dataIdx].isSeparator) dataIdx++
+      const rowData = this.rows[dataIdx]
+      if (!rowData) { dataIdx++; return }
+      ;[...domTr.querySelectorAll("th, td")].forEach((domCell, col) => {
+        const cd = rowData.cells[col]
+        if (!cd) return
+        // Show raw markdown text so edits map cleanly back to source
+        domCell.textContent = cd.text
+        domCell.contentEditable = "true"
+        domCell.spellcheck = false
+        domCell.style.cssText += ";outline:none;white-space:pre-wrap;cursor:text"
+
+        domCell.addEventListener("keydown", e => {
+          if (e.key === "Tab") {
+            e.preventDefault()
+            const all = [...wrap.querySelectorAll("[contenteditable='true']")]
+            const i = all.indexOf(domCell)
+            const next = e.shiftKey ? all[i - 1] : all[i + 1]
+            if (next) { next.focus(); selectAllInEl(next) }
+          } else if (e.key === "Enter" || e.key === "Escape") {
+            e.preventDefault()
+            if (e.key === "Escape") domCell.blur()
+          }
+        })
+
+        domCell.addEventListener("blur", () => {
+          const newText = domCell.innerText.replace(/\n/g, " ")
+          pending[cd.from] = { to: cd.to, insert: " " + newText + " " }
+          // Dispatch only when focus fully leaves the table
+          setTimeout(() => {
+            if (wrap.contains(document.activeElement)) return
+            const changes = Object.entries(pending)
+              .map(([f, c]) => ({ from: +f, to: c.to, insert: c.insert }))
+              .sort((a, b) => a.from - b.from)
+              .filter(c => { try { return view.state.doc.sliceString(c.from, c.to) !== c.insert } catch { return false } })
+            Object.keys(pending).forEach(k => delete pending[k])
+            if (changes.length) view.dispatch({ changes })
+          }, 0)
+        })
+      })
+      dataIdx++
+    })
     return wrap
   }
+}
+
+function selectAllInEl(el) {
+  const r = document.createRange(); r.selectNodeContents(el)
+  const s = window.getSelection(); s.removeAllRanges(); s.addRange(r)
 }
 
 // ─── Decoration builder ───────────────────────────────────────────────────────
@@ -213,30 +296,28 @@ function buildDecorations(view) {
 
         // ── GFM Table ────────────────────────────────────────────────────────
         if (name === "Table") {
-          if (!cursorInRange(state, from, to)) {
-            try {
-              const firstLine = state.doc.lineAt(from)
-              const lastLine  = state.doc.lineAt(Math.min(to, docLen - 1))
-              const tableMd   = state.doc.sliceString(firstLine.from, lastLine.to)
-              const html      = marked.parse(tableMd)
-              if (html.includes("<table")) {
-                // Replace the first table line with the rendered widget.
-                // Single-line Decoration.replace is always valid — no block:true needed.
-                addWidget(firstLine.from, firstLine.to, new TableWidget(html))
-                // Hide every subsequent table line (single-line replacements + CSS class)
-                let linePos = firstLine.to + 1
-                while (linePos <= lastLine.from) {
-                  const ln = state.doc.lineAt(linePos)
-                  addLine(ln.from, "lp-table-source")
-                  if (ln.from < ln.to) {
-                    items.push({ from: ln.from, to: ln.to, deco: Decoration.replace({}), isLine: false, isAtomic: true })
-                  }
-                  if (ln.from >= lastLine.from) break
-                  linePos = ln.to + 1
+          try {
+            const firstLine = state.doc.lineAt(from)
+            const lastLine  = state.doc.lineAt(Math.min(to, docLen - 1))
+            const tableMd   = state.doc.sliceString(firstLine.from, lastLine.to)
+            const html      = marked.parse(tableMd)
+            if (html.includes("<table")) {
+              const rows = parseTableCells(state, firstLine.from, lastLine.to)
+              // Replace first line with editable table widget (always rendered)
+              addWidget(firstLine.from, firstLine.to, new TableWidget(html, rows))
+              // Hide remaining table lines
+              let linePos = firstLine.to + 1
+              while (linePos <= lastLine.from) {
+                const ln = state.doc.lineAt(linePos)
+                addLine(ln.from, "lp-table-source")
+                if (ln.from < ln.to) {
+                  items.push({ from: ln.from, to: ln.to, deco: Decoration.replace({}), isLine: false, isAtomic: true })
                 }
+                if (ln.from >= lastLine.from) break
+                linePos = ln.to + 1
               }
-            } catch (_) {}
-          }
+            }
+          } catch (_) {}
           return false
         }
       },
