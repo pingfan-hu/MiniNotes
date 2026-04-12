@@ -10,7 +10,8 @@ class StatusBarController {
     init() {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         popover = NSPopover()
-        popover.behavior = .transient
+        popover.behavior = .applicationDefined
+        popover.animates = true
 
         if let button = statusItem.button {
             button.image = NSImage(systemSymbolName: "note.text", accessibilityDescription: "MiniNotes")
@@ -41,7 +42,6 @@ class StatusBarController {
 
     private func showContextMenu() {
         let menu = NSMenu()
-
         let quitItem = NSMenuItem(
             title: "Quit MiniNotes",
             action: #selector(NSApplication.terminate(_:)),
@@ -50,8 +50,6 @@ class StatusBarController {
         quitItem.keyEquivalentModifierMask = .command
         quitItem.image = NSImage(systemSymbolName: "xmark.square", accessibilityDescription: nil)
         menu.addItem(quitItem)
-
-        // Show the menu by temporarily assigning it to the status item
         statusItem.menu = menu
         statusItem.button?.performClick(nil)
         statusItem.menu = nil
@@ -59,7 +57,13 @@ class StatusBarController {
 
     private func openPopover() {
         guard let button = statusItem.button else { return }
+        NSApp.activate(ignoringOtherApps: true)
         popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
+        // NSPopover sits at .popUpMenu (101). On recent macOS the system IME candidate
+        // window is at the same or lower level, so it renders behind the popover.
+        // Dropping to .floating (3) lets the IME appear above us while still keeping
+        // us above normal app windows (level 0).
+        popover.contentViewController?.view.window?.level = .floating
         eventMonitor?.start()
     }
 
@@ -69,7 +73,6 @@ class StatusBarController {
     }
 }
 
-// Detects clicks outside the popover to close it
 class EventMonitor {
     private var monitor: Any?
     private let mask: NSEvent.EventTypeMask

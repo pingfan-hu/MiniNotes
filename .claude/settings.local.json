@@ -11,7 +11,23 @@
       "Bash(npm run:*)",
       "Bash(node:*)",
       "Bash(xcodebuild -project MiniNotes.xcodeproj -scheme MiniNotes -configuration Debug build CODE_SIGN_IDENTITY=\"\" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO)",
-      "Bash(xcodebuild -scheme MiniNotes -configuration Debug build)"
+      "Bash(xcodebuild -scheme MiniNotes -configuration Debug build)",
+      "Bash(xcodebuild -project /Users/pingfan/Documents/GitHub/software/MiniNotes/MiniNotes.xcodeproj -scheme MiniNotes -configuration Debug -showBuildSettings)",
+      "Bash(chmod +x:*)",
+      "Bash(xcodebuild -project MiniNotes.xcodeproj -scheme MiniNotes -configuration Debug CODE_SIGN_IDENTITY= CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO build -quiet)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/pingfan/Documents/GitHub/software/MiniNotes/scripts/rebuild-and-relaunch.sh"
+          }
+        ]
+      }
     ]
   }
 }
