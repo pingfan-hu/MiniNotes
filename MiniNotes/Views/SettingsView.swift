@@ -12,50 +12,72 @@ struct SettingsView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            Text("File Location")
-                .font(.headline)
-
-            VStack(alignment: .leading, spacing: 6) {
-                Text("Current file")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                Text(displayPath)
-                    .font(.system(.body, design: .monospaced))
-                    .lineLimit(3)
-                    .truncationMode(.middle)
-                    .foregroundColor(.primary)
-            }
+        VStack(alignment: .leading, spacing: 0) {
+            // Header
+            Text(L.settingsTitle)
+                .font(.system(size: 17, weight: .semibold))
+                .padding(.horizontal, 20)
+                .padding(.top, 20)
+                .padding(.bottom, 14)
 
             Divider()
 
-            VStack(alignment: .leading, spacing: 10) {
-                Button("Open Existing File...") {
+            // Current file path
+            VStack(alignment: .leading, spacing: 6) {
+                Text(L.settingsCurrentFile)
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundColor(.secondary)
+                    .textCase(.uppercase)
+
+                Text(displayPath)
+                    .font(.system(size: 13, design: .monospaced))
+                    .lineLimit(3)
+                    .truncationMode(.middle)
+                    .foregroundColor(.primary)
+                    .padding(10)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(Color(NSColor.controlBackgroundColor))
+                    )
+            }
+            .padding(.horizontal, 20)
+            .padding(.top, 16)
+            .padding(.bottom, 12)
+
+            // Actions
+            HStack(spacing: 10) {
+                SettingsActionButton(title: L.settingsOpenExisting) {
                     openExistingFile()
                 }
-                .buttonStyle(.bordered)
-
-                Button("Create New File...") {
+                SettingsActionButton(title: L.settingsCreateNew) {
                     createNewFile()
                 }
-                .buttonStyle(.bordered)
             }
+            .padding(.horizontal, 20)
+            .padding(.bottom, 20)
 
             Spacer()
 
+            Divider()
+
+            // Footer
             HStack {
                 Spacer()
-                Button("Done") { isPresented = false }
+                Button(L.settingsDone) { isPresented = false }
                     .keyboardShortcut(.defaultAction)
+                    .controlSize(.regular)
             }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 12)
         }
-        .padding(20)
         .frame(width: 400, height: 240)
+        .background(.ultraThinMaterial)
     }
 
     private func openExistingFile() {
         let panel = NSOpenPanel()
-        panel.title = "Choose a Markdown file"
+        panel.title = L.settingsPanelChooseTitle
         panel.allowedContentTypes = [.init(filenameExtension: "md")!]
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = false
@@ -68,7 +90,7 @@ struct SettingsView: View {
 
     private func createNewFile() {
         let panel = NSSavePanel()
-        panel.title = "Create a new Markdown file"
+        panel.title = L.settingsPanelCreateTitle
         panel.nameFieldStringValue = "notes.md"
         panel.allowedContentTypes = [.init(filenameExtension: "md")!]
         panel.canCreateDirectories = true
@@ -76,5 +98,22 @@ struct SettingsView: View {
         guard panel.runModal() == .OK, let url = panel.url else { return }
         notesStore.changeFile(to: url)
         isPresented = false
+    }
+}
+
+private struct SettingsActionButton: View {
+    let title: String
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Text(title)
+                .font(.system(size: 13, weight: .medium))
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 7)
+        }
+        .buttonStyle(.bordered)
+        .controlSize(.regular)
+        .tint(Color(red: 0.42, green: 0.50, blue: 0.77))
     }
 }

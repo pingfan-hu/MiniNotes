@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		91923E3F4B704141919648ED /* LocalizationHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 514957B02686447FAE0EFBDC /* LocalizationHelper.swift */; };
 		18999BB412AAB3920ED23FC0 /* StatusBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46A5AB6AFB8F28849D518BAF /* StatusBarController.swift */; };
 		2B14A904CFF6CC30E804434D /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FC82E353746CED7D6CA3EC9 /* ContentView.swift */; };
 		8AE6F04BBB43451CBBAC3E19 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C25697B9C4AF43EDB2BB36BA /* SettingsView.swift */; };
@@ -21,6 +22,7 @@
 
 /* Begin PBXFileReference section */
 		10EC6C1F0E029E2712046485 /* editor.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = editor.html; sourceTree = "<group>"; };
+		514957B02686447FAE0EFBDC /* LocalizationHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizationHelper.swift; sourceTree = "<group>"; };
 		1318AA66AC13FCF99D02E7AA /* NotesStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesStore.swift; sourceTree = "<group>"; };
 		16F52E9A0B2BC2AD6B03146D /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		361C46AC0D57AE6C9FE95766 /* MiniNotesApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiniNotesApp.swift; sourceTree = "<group>"; };
@@ -62,11 +64,20 @@
 			path = App;
 			sourceTree = "<group>";
 		};
+		5D219AD98BC646E89883A02C /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				514957B02686447FAE0EFBDC /* LocalizationHelper.swift */,
+			);
+			path = Helpers;
+			sourceTree = "<group>";
+		};
 		54CCA5E995E74F9B92C7A5DB /* MiniNotes */ = {
 			isa = PBXGroup;
 			children = (
 				7BB76C72A29854BA9C9A3C39 /* Info.plist */,
 				54BF0E6CF9449A00729A4DCE /* App */,
+				5D219AD98BC646E89883A02C /* Helpers */,
 				9940C35F25D9A42DDB267525 /* Resources */,
 				C3F08C0EE8719159B9D19897 /* StatusBar */,
 				CFFCB2271FD79E9AAD65C8D3 /* Store */,
@@ -183,6 +194,7 @@
 			files = (
 				F830587420CDF9285CC58E22 /* AppDelegate.swift in Sources */,
 				2B14A904CFF6CC30E804434D /* ContentView.swift in Sources */,
+				91923E3F4B704141919648ED /* LocalizationHelper.swift in Sources */,
 				6C5E7EEDCBE435D06F512BC4 /* MarkdownEditorView.swift in Sources */,
 				EA1019687EEFE9E4C158AF4D /* MiniNotesApp.swift in Sources */,
 				BA2E720DC486D0B454520638 /* NotesStore.swift in Sources */,

@@ -25,7 +25,7 @@ class StatusBarController {
         popover.contentViewController = NSHostingController(rootView: contentView)
 
         eventMonitor = EventMonitor(mask: [.leftMouseDown, .rightMouseDown]) { [weak self] _ in
-            if let self, self.popover.isShown {
+            if let self, self.popover.isShown, NSApp.modalWindow == nil {
                 self.closePopover()
             }
         }

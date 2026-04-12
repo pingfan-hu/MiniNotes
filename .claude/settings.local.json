@@ -19,7 +19,12 @@
       "Bash(xcodebuild -project MiniNotes.xcodeproj -scheme MiniNotes -configuration Debug CODE_SIGN_IDENTITY= CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO build)",
       "Bash(pkill -9 MiniNotes)",
       "Bash(/Users/pingfan/Library/Developer/Xcode/DerivedData/MiniNotes-dqmwdyrthfgyezeddoegrwdqawje/Build/Products/Debug/MiniNotes.app/Contents/MacOS/MiniNotes:*)",
-      "Bash(\"/Users/pingfan/Library/Developer/Xcode/DerivedData/MiniNotes-dqmwdyrthfgyezeddoegrwdqawje/Build/Products/Debug/MiniNotes.app/Contents/MacOS/MiniNotes\")"
+      "Bash(\"/Users/pingfan/Library/Developer/Xcode/DerivedData/MiniNotes-dqmwdyrthfgyezeddoegrwdqawje/Build/Products/Debug/MiniNotes.app/Contents/MacOS/MiniNotes\")",
+      "Bash(uuidgen)",
+      "Bash(bash:*)",
+      "Bash(echo \"Exit: $?\")",
+      "Bash(xcodebuild -project MiniNotes.xcodeproj -scheme MiniNotes -configuration Debug CODE_SIGN_IDENTITY=\"\" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO build)",
+      "Bash(xcodebuild -project MiniNotes.xcodeproj -scheme MiniNotes -configuration Debug CODE_SIGN_IDENTITY=\"\" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO build -quiet)"
     ]
   },
   "hooks": {

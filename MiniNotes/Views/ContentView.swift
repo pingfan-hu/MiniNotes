@@ -1,4 +1,5 @@
 import SwiftUI
+import AppKit
 
 struct ContentView: View {
     @EnvironmentObject var notesStore: NotesStore
@@ -20,13 +21,14 @@ struct ContentView: View {
             HStack(alignment: .center, spacing: 8) {
                 Image(systemName: "note.text")
                     .foregroundColor(.secondary)
+                    .font(.system(size: 14, weight: .regular))
 
                 VStack(alignment: .leading, spacing: 1) {
                     Text(displayFilename)
-                        .font(.headline)
+                        .font(.system(size: 13, weight: .medium))
                         .lineLimit(1)
                     Text(displayDirectory)
-                        .font(.caption)
+                        .font(.system(size: 10))
                         .foregroundColor(.secondary)
                         .lineLimit(1)
                         .truncationMode(.middle)
@@ -34,22 +36,21 @@ struct ContentView: View {
 
                 Spacer()
 
-                Text("Auto-saved")
-                    .font(.caption)
+                Text(L.autoSaved)
+                    .font(.system(size: 11))
                     .foregroundColor(.secondary)
 
-                Button {
-                    showingSettings = true
-                } label: {
-                    Image(systemName: "gear")
-                        .foregroundColor(.secondary)
+                ToolbarButton(title: L.buttonObsidian) {
+                    openInObsidian()
                 }
-                .buttonStyle(.plain)
-                .help("File settings")
+
+                ToolbarButton(title: L.buttonChoose) {
+                    showingSettings = true
+                }
             }
             .padding(.horizontal, 14)
             .padding(.vertical, 8)
-            .background(Color(NSColor.windowBackgroundColor))
+            .background(.ultraThinMaterial)
 
             Divider()
 
@@ -64,5 +65,32 @@ struct ContentView: View {
         .onReceive(NotificationCenter.default.publisher(for: NSPopover.didCloseNotification)) { _ in
             showingSettings = false
         }
+    }
+
+    private func openInObsidian() {
+        let path = notesStore.fileURL.path
+        guard let encoded = path.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed),
+              let url = URL(string: "obsidian://open?path=\(encoded)") else { return }
+        NSWorkspace.shared.open(url)
+    }
+}
+
+private struct ToolbarButton: View {
+    let title: String
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Text(title)
+                .font(.system(size: 12, weight: .medium))
+                .foregroundColor(Color(red: 0.42, green: 0.50, blue: 0.77))
+                .padding(.horizontal, 9)
+                .padding(.vertical, 4)
+                .background(
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(Color(red: 0.42, green: 0.50, blue: 0.77).opacity(0.12))
+                )
+        }
+        .buttonStyle(.plain)
     }
 }
