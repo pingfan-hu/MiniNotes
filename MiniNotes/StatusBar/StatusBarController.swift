@@ -57,6 +57,7 @@ class StatusBarController {
 
     private func openPopover() {
         guard let button = statusItem.button else { return }
+        notesStore.reloadFromDisk()
         NSApp.activate(ignoringOtherApps: true)
         popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
         // NSPopover sits at .popUpMenu (101). On recent macOS the system IME candidate
@@ -68,6 +69,7 @@ class StatusBarController {
     }
 
     private func closePopover() {
+        notesStore.flush()
         popover.performClose(nil)
         eventMonitor?.stop()
     }

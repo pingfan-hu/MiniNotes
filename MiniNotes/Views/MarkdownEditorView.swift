@@ -59,7 +59,8 @@ struct MarkdownEditorView: NSViewRepresentable {
             observers.forEach { NotificationCenter.default.removeObserver($0) }
         }
 
-        // Listen for NSPopover open/close to suspend/resume the JS editor
+        // Listen for NSPopover open/close to suspend/resume the JS editor,
+        // and for file changes to reload content without closing the popover.
         func observePopoverLifecycle() {
             observers.append(
                 NotificationCenter.default.addObserver(
@@ -73,6 +74,15 @@ struct MarkdownEditorView: NSViewRepresentable {
             observers.append(
                 NotificationCenter.default.addObserver(
                     forName: NSPopover.willShowNotification,
+                    object: nil,
+                    queue: .main
+                ) { [weak self] _ in
+                    self?.resumeEditorInWebView()
+                }
+            )
+            observers.append(
+                NotificationCenter.default.addObserver(
+                    forName: .notesFileChanged,
                     object: nil,
                     queue: .main
                 ) { [weak self] _ in

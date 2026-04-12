@@ -14,7 +14,12 @@
       "Bash(xcodebuild -scheme MiniNotes -configuration Debug build)",
       "Bash(xcodebuild -project /Users/pingfan/Documents/GitHub/software/MiniNotes/MiniNotes.xcodeproj -scheme MiniNotes -configuration Debug -showBuildSettings)",
       "Bash(chmod +x:*)",
-      "Bash(xcodebuild -project MiniNotes.xcodeproj -scheme MiniNotes -configuration Debug CODE_SIGN_IDENTITY= CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO build -quiet)"
+      "Bash(xcodebuild -project MiniNotes.xcodeproj -scheme MiniNotes -configuration Debug CODE_SIGN_IDENTITY= CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO build -quiet)",
+      "Bash(python3:*)",
+      "Bash(xcodebuild -project MiniNotes.xcodeproj -scheme MiniNotes -configuration Debug CODE_SIGN_IDENTITY= CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO build)",
+      "Bash(pkill -9 MiniNotes)",
+      "Bash(/Users/pingfan/Library/Developer/Xcode/DerivedData/MiniNotes-dqmwdyrthfgyezeddoegrwdqawje/Build/Products/Debug/MiniNotes.app/Contents/MacOS/MiniNotes:*)",
+      "Bash(\"/Users/pingfan/Library/Developer/Xcode/DerivedData/MiniNotes-dqmwdyrthfgyezeddoegrwdqawje/Build/Products/Debug/MiniNotes.app/Contents/MacOS/MiniNotes\")"
     ]
   },
   "hooks": {

@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		18999BB412AAB3920ED23FC0 /* StatusBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46A5AB6AFB8F28849D518BAF /* StatusBarController.swift */; };
 		2B14A904CFF6CC30E804434D /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FC82E353746CED7D6CA3EC9 /* ContentView.swift */; };
+		8AE6F04BBB43451CBBAC3E19 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C25697B9C4AF43EDB2BB36BA /* SettingsView.swift */; };
 		6C5E7EEDCBE435D06F512BC4 /* MarkdownEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A4967B3A2337443E1F3CFB9 /* MarkdownEditorView.swift */; };
 		7B33B25CE9C78A7072364FD4 /* editor.html in Resources */ = {isa = PBXBuildFile; fileRef = 10EC6C1F0E029E2712046485 /* editor.html */; };
 		8BB6783892280E78AABB41D7 /* marked.min.js in Resources */ = {isa = PBXBuildFile; fileRef = 826CEF8FC6010268C63E1895 /* marked.min.js */; };
@@ -29,6 +30,7 @@
 		7BB76C72A29854BA9C9A3C39 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		826CEF8FC6010268C63E1895 /* marked.min.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = marked.min.js; sourceTree = "<group>"; };
 		8FC82E353746CED7D6CA3EC9 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		C25697B9C4AF43EDB2BB36BA /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		C89DB077C3F292BA098D5603 /* MiniNotes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MiniNotes.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -46,6 +48,7 @@
 			children = (
 				8FC82E353746CED7D6CA3EC9 /* ContentView.swift */,
 				7A4967B3A2337443E1F3CFB9 /* MarkdownEditorView.swift */,
+				C25697B9C4AF43EDB2BB36BA /* SettingsView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -183,6 +186,7 @@
 				6C5E7EEDCBE435D06F512BC4 /* MarkdownEditorView.swift in Sources */,
 				EA1019687EEFE9E4C158AF4D /* MiniNotesApp.swift in Sources */,
 				BA2E720DC486D0B454520638 /* NotesStore.swift in Sources */,
+				8AE6F04BBB43451CBBAC3E19 /* SettingsView.swift in Sources */,
 				18999BB412AAB3920ED23FC0 /* StatusBarController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
