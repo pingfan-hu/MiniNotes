@@ -61,5 +61,8 @@ struct ContentView: View {
             SettingsView(isPresented: $showingSettings)
                 .environmentObject(notesStore)
         }
+        .onReceive(NotificationCenter.default.publisher(for: NSPopover.didCloseNotification)) { _ in
+            showingSettings = false
+        }
     }
 }
