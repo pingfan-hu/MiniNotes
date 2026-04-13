@@ -25,7 +25,7 @@ struct ContentView: View {
                         Image(systemName: "note.text")
                             .font(.system(size: 12))
                         Text(displayFilename)
-                            .font(.system(size: 14, weight: .medium))
+                            .font(Font.custom("LXGWWenKai-Medium", size: 14))
                             .lineLimit(1)
                     }
                 }
@@ -44,7 +44,7 @@ struct ContentView: View {
                     openInObsidian()
                 } label: {
                     Text(L.buttonOpenInObsidian)
-                        .font(.system(size: 14, weight: .medium))
+                        .font(Font.custom("LXGWWenKai-Medium", size: 14))
                         .lineLimit(1)
                 }
             }

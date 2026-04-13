@@ -15,7 +15,7 @@ struct SettingsView: View {
         VStack(alignment: .leading, spacing: 0) {
             // Header
             Text(L.settingsTitle)
-                .font(.system(size: 17, weight: .semibold))
+                .font(Font.custom("LXGWWenKai-Medium", size: 17))
                 .padding(.horizontal, 20)
                 .padding(.top, 20)
                 .padding(.bottom, 14)
@@ -25,12 +25,12 @@ struct SettingsView: View {
             // Current file path
             VStack(alignment: .leading, spacing: 6) {
                 Text(L.settingsCurrentFile)
-                    .font(.system(size: 11, weight: .medium))
+                    .font(Font.custom("LXGWWenKai-Medium", size: 11))
                     .foregroundColor(.secondary)
                     .textCase(.uppercase)
 
                 Text(displayPath)
-                    .font(.system(size: 13, design: .monospaced))
+                    .font(Font.custom("MapleMono-NF-CN-Regular", size: 13))
                     .lineLimit(3)
                     .truncationMode(.middle)
                     .foregroundColor(.primary)
@@ -108,7 +108,7 @@ private struct SettingsActionButton: View {
     var body: some View {
         Button(action: action) {
             Text(title)
-                .font(.system(size: 13, weight: .medium))
+                .font(Font.custom("LXGWWenKai-Medium", size: 13))
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 7)
         }

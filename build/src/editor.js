@@ -471,7 +471,7 @@ const interactionHandlers = EditorView.domEventHandlers({
 const editorTheme = EditorView.baseTheme({
   "&": { height: "100%" },
   ".cm-scroller": {
-    fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
+    fontFamily: '"LXGW WenKai Medium", "LXGW WenKai", -apple-system, sans-serif',
     fontSize: "14px",
     lineHeight: "1.75",
     overflow: "auto",
@@ -492,14 +492,14 @@ const editorTheme = EditorView.baseTheme({
   ".lp-strong": { fontWeight: "700" },
   ".lp-em":     { fontStyle: "italic" },
   ".lp-code": {
-    fontFamily: '"SF Mono", Menlo, Monaco, monospace',
+    fontFamily: '"Maple Mono NF CN", "SF Mono", monospace',
     fontSize: "0.88em",
     background: "rgba(128,128,128,0.15)",
     borderRadius: "3px",
     padding: "1px 4px",
   },
   ".lp-fenced-line": {
-    fontFamily: '"SF Mono", Menlo, Monaco, monospace',
+    fontFamily: '"Maple Mono NF CN", "SF Mono", monospace',
     fontSize: "0.88em",
     background: "rgba(128,128,128,0.08)",
   },
