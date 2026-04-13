@@ -363,7 +363,6 @@ function buildDecorations(view) {
             if (n < 1 || n > state.doc.lines) continue
             addLine(state.doc.line(n).from, "lp-fenced-line")
           }
-          addLine(endLine.from, "lp-fenced-last")
           addMark(startLine.from, startLine.to, "lp-syntax-dim")
           if (endLine.number !== startLine.number && endLine.from < endLine.to)
             addMark(endLine.from, endLine.to, "lp-syntax-dim")
@@ -581,10 +580,6 @@ const editorTheme = EditorView.baseTheme({
     fontFamily: '"Maple Mono NF CN", "SF Mono", monospace',
     fontSize: "0.88em",
     background: "var(--mn-code-bg)",
-  },
-  ".lp-fenced-last": {
-    paddingBottom: "8px",
-    marginBottom: "12px",
   },
   ".lp-link": {
     color: "#4a7cf7",
