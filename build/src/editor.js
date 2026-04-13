@@ -559,12 +559,12 @@ const editorTheme = EditorView.baseTheme({
   ".cm-cursor":  { borderLeftWidth: "2px" },
   ".cm-focused": { outline: "none" },
 
-  ".lp-h1": { fontSize: "1.9em",  fontWeight: "700", lineHeight: "1.3" },
-  ".lp-h2": { fontSize: "1.55em", fontWeight: "700", lineHeight: "1.3" },
-  ".lp-h3": { fontSize: "1.25em", fontWeight: "600", lineHeight: "1.3" },
-  ".lp-h4": { fontSize: "1.1em",  fontWeight: "600" },
-  ".lp-h5": { fontSize: "1em",    fontWeight: "600" },
-  ".lp-h6": { fontSize: "0.95em", fontWeight: "600" },
+  ".lp-h1": { fontSize: "1.9em",  fontWeight: "700", lineHeight: "1.3", paddingTop: "10px" },
+  ".lp-h2": { fontSize: "1.55em", fontWeight: "700", lineHeight: "1.3", paddingTop: "8px" },
+  ".lp-h3": { fontSize: "1.25em", fontWeight: "600", lineHeight: "1.3", paddingTop: "6px" },
+  ".lp-h4": { fontSize: "1.1em",  fontWeight: "600", paddingTop: "6px" },
+  ".lp-h5": { fontSize: "1em",    fontWeight: "600", paddingTop: "6px" },
+  ".lp-h6": { fontSize: "0.95em", fontWeight: "600", paddingTop: "6px" },
 
   ".lp-syntax-dim": { color: "#aaa", fontWeight: "400 !important" },
   ".lp-strong": { fontWeight: "700" },
