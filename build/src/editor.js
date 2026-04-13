@@ -1,5 +1,5 @@
 import { EditorView, ViewPlugin, Decoration, WidgetType, keymap } from "@codemirror/view"
-import { EditorState, RangeSetBuilder, Compartment } from "@codemirror/state"
+import { EditorState, RangeSetBuilder, Compartment, StateEffect } from "@codemirror/state"
 import { markdown, markdownLanguage } from "@codemirror/lang-markdown"
 import { syntaxTree, HighlightStyle, syntaxHighlighting } from "@codemirror/language"
 import { languages } from "@codemirror/language-data"
@@ -119,18 +119,6 @@ class BulletWidget extends WidgetType {
     const s = document.createElement("span")
     s.className = "lp-bullet"
     s.textContent = "•\u00a0"
-    return s
-  }
-}
-
-class OrderedWidget extends WidgetType {
-  constructor(text) { super(); this.text = text }
-  eq(o) { return this.text === o.text }
-  ignoreEvent() { return true }
-  toDOM() {
-    const s = document.createElement("span")
-    s.className = "lp-ordered"
-    s.textContent = this.text
     return s
   }
 }
@@ -406,9 +394,7 @@ function buildDecorations(view) {
                 addLine(from, "lp-bullet-line")
                 addWidget(from, to + 1, new BulletWidget())
               } else if (grandparentName === "OrderedList") {
-                const text = state.doc.sliceString(from, to)
                 addLine(from, "lp-ordered-line")
-                addWidget(from, to + 1, new OrderedWidget(text))
               }
             }
           }
@@ -485,6 +471,46 @@ function buildDecorations(view) {
     try { builder.add(from, to, deco) } catch (_) {}
   }
   try { return builder.finish() } catch (_) { return Decoration.none }
+}
+
+// ─── Plugin ───────────────────────────────────────────────────────────────────
+
+// ─── Ordered list auto-renumber ───────────────────────────────────────────────
+
+const renumberEffect = StateEffect.define()
+
+function renumberOrderedLists(view) {
+  const { state } = view
+  const changes = []
+  try {
+    syntaxTree(state).iterate({
+      enter(node) {
+        if (node.name !== "OrderedList") return
+        let expectedNum = 1
+        let child = node.node.firstChild
+        while (child) {
+          if (child.name === "ListItem") {
+            const mark = child.firstChild
+            if (mark && mark.name === "ListMark") {
+              const markText = state.doc.sliceString(mark.from, mark.to)
+              const m = markText.match(/^(\d+)([.)])$/)
+              if (m) {
+                if (parseInt(m[1]) !== expectedNum) {
+                  changes.push({ from: mark.from, to: mark.from + m[1].length, insert: String(expectedNum) })
+                }
+                expectedNum++
+              }
+            }
+          }
+          child = child.nextSibling
+        }
+        return false
+      }
+    })
+  } catch (_) {}
+  if (changes.length > 0) {
+    view.dispatch({ changes, effects: renumberEffect.of(null) })
+  }
 }
 
 // ─── Plugin ───────────────────────────────────────────────────────────────────
@@ -607,22 +633,16 @@ const editorTheme = EditorView.baseTheme({
     cursor: "pointer",
   },
   ".lp-bullet": {
-    display: "inline-block",
-    width: "1.5em",
-    marginLeft: "-1.5em",
+    display: "inline",
     userSelect: "none",
   },
   ".lp-bullet-line": {
     paddingLeft: "1.5em",
-  },
-  ".lp-ordered": {
-    display: "inline-block",
-    width: "1.5em",
-    marginLeft: "-1.5em",
-    userSelect: "none",
+    textIndent: "-1.5em",
   },
   ".lp-ordered-line": {
     paddingLeft: "1.5em",
+    textIndent: "-1.5em",
   },
   ".lp-checkbox": {
     cursor: "pointer",
@@ -681,7 +701,10 @@ function buildExtensions() {
     interactionHandlers,
     editorTheme,
     EditorView.updateListener.of((update) => {
-      if (update.docChanged && _onChange) _onChange(update.view.state.doc.toString())
+      if (!update.docChanged) return
+      const isRenumber = update.transactions.some(tr => tr.effects.some(e => e.is(renumberEffect)))
+      if (!isRenumber) renumberOrderedLists(update.view)
+      if (_onChange) _onChange(update.view.state.doc.toString())
     }),
   ]
 }
