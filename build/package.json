@@ -9,8 +9,10 @@
     "@codemirror/commands": "^6",
     "@codemirror/lang-markdown": "^6",
     "@codemirror/language": "^6",
+    "@codemirror/language-data": "^6.5.2",
     "@codemirror/state": "^6",
     "@codemirror/view": "^6",
+    "@lezer/highlight": "^1.2.3",
     "marked": "^18.0.0"
   },
   "devDependencies": {

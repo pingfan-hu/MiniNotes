@@ -1,11 +1,89 @@
 import { EditorView, ViewPlugin, Decoration, WidgetType, keymap } from "@codemirror/view"
-import { EditorState, RangeSetBuilder } from "@codemirror/state"
+import { EditorState, RangeSetBuilder, Compartment } from "@codemirror/state"
 import { markdown, markdownLanguage } from "@codemirror/lang-markdown"
-import { syntaxTree } from "@codemirror/language"
+import { syntaxTree, HighlightStyle, syntaxHighlighting } from "@codemirror/language"
+import { languages } from "@codemirror/language-data"
+import { tags as t } from "@lezer/highlight"
 import { defaultKeymap, historyKeymap, history } from "@codemirror/commands"
 import { marked } from "marked"
 
 marked.use({ gfm: true, breaks: false })
+
+// ─── Syntax-highlight themes ──────────────────────────────────────────────────
+// Colors mirror the user's code-light.theme / code-dark.theme files.
+
+const lightHighlightStyle = HighlightStyle.define([
+  { tag: [t.comment, t.lineComment, t.blockComment, t.docComment],
+    color: "#6c675f", fontStyle: "italic" },
+  { tag: [t.keyword, t.controlKeyword, t.definitionKeyword, t.operatorKeyword],
+    color: "#876032" },
+  { tag: [t.typeName, t.typeOperator, t.className],
+    color: "#527594" },
+  { tag: [t.function(t.name), t.function(t.variableName), t.function(t.propertyName)],
+    color: "#9a4929" },
+  { tag: [t.standard(t.name), t.standard(t.variableName)],
+    color: "#9a4929" },
+  { tag: [t.string, t.character, t.special(t.string)],
+    color: "#3f643c" },
+  { tag: [t.number, t.integer, t.float, t.bool],
+    color: "#7c619a" },
+  { tag: [t.constant(t.name), t.constant(t.variableName)],
+    color: "#7c619a" },
+  { tag: [t.annotation, t.meta, t.processingInstruction, t.moduleKeyword],
+    color: "#7c619a" },
+  { tag: t.operator,
+    color: "#3d3929" },
+  { tag: [t.attributeName, t.modifier],
+    color: "#876032", fontStyle: "italic" },
+  { tag: t.invalid,
+    color: "#b05555", fontWeight: "bold" },
+])
+
+const darkHighlightStyle = HighlightStyle.define([
+  { tag: [t.comment, t.lineComment, t.blockComment, t.docComment],
+    color: "#938e87", fontStyle: "italic" },
+  { tag: [t.keyword, t.controlKeyword, t.definitionKeyword, t.operatorKeyword],
+    color: "#c4956a" },
+  { tag: [t.typeName, t.typeOperator, t.className],
+    color: "#7b9ebd" },
+  { tag: [t.function(t.name), t.function(t.variableName), t.function(t.propertyName)],
+    color: "#d97757" },
+  { tag: [t.standard(t.name), t.standard(t.variableName)],
+    color: "#d97757" },
+  { tag: [t.string, t.character, t.special(t.string)],
+    color: "#7da47a" },
+  { tag: [t.number, t.integer, t.float, t.bool],
+    color: "#a68bbf" },
+  { tag: [t.constant(t.name), t.constant(t.variableName)],
+    color: "#a68bbf" },
+  { tag: [t.annotation, t.meta, t.processingInstruction, t.moduleKeyword],
+    color: "#a68bbf" },
+  { tag: t.operator,
+    color: "#d4cfc6" },
+  { tag: [t.attributeName, t.modifier],
+    color: "#c4956a", fontStyle: "italic" },
+  { tag: t.invalid,
+    color: "#c67777", fontWeight: "bold" },
+])
+
+const highlightCompartment = new Compartment()
+
+function isDarkMode() {
+  return window.matchMedia("(prefers-color-scheme: dark)").matches
+}
+function currentHighlightExt() {
+  return syntaxHighlighting(isDarkMode() ? darkHighlightStyle : lightHighlightStyle)
+}
+
+// Inject CSS variables for code-block backgrounds so they adapt to light/dark.
+;(function() {
+  const s = document.createElement("style")
+  s.textContent = [
+    ":root{--mn-code-bg:rgba(128,128,128,0.08);--mn-inline-bg:rgba(128,128,128,0.15)}",
+    "@media(prefers-color-scheme:dark){:root{--mn-code-bg:rgba(255,255,255,0.09);--mn-inline-bg:rgba(255,255,255,0.09)}}",
+  ].join("")
+  document.head.appendChild(s)
+})()
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -494,14 +572,14 @@ const editorTheme = EditorView.baseTheme({
   ".lp-code": {
     fontFamily: '"Maple Mono NF CN", "SF Mono", monospace',
     fontSize: "0.88em",
-    background: "rgba(128,128,128,0.15)",
+    background: "var(--mn-inline-bg)",
     borderRadius: "3px",
     padding: "1px 4px",
   },
   ".lp-fenced-line": {
     fontFamily: '"Maple Mono NF CN", "SF Mono", monospace',
     fontSize: "0.88em",
-    background: "rgba(128,128,128,0.08)",
+    background: "var(--mn-code-bg)",
   },
   ".lp-link": {
     color: "#4a7cf7",
@@ -561,7 +639,8 @@ function buildExtensions() {
   return [
     history(),
     keymap.of([...defaultKeymap, ...historyKeymap]),
-    markdown({ base: markdownLanguage }),
+    markdown({ base: markdownLanguage, codeLanguages: languages }),
+    highlightCompartment.of(currentHighlightExt()),
     EditorView.lineWrapping,
     livePreviewPlugin,
     interactionHandlers,
@@ -578,6 +657,13 @@ function makeView(content, parent) {
     parent,
   })
 }
+
+// Reconfigure highlight theme when the OS appearance changes
+window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
+  if (_view) {
+    _view.dispatch({ effects: highlightCompartment.reconfigure(currentHighlightExt()) })
+  }
+})
 
 window.setupEditor = function (initialContent, onChange) {
   _onChange = onChange
