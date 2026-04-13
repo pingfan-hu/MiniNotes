@@ -7,14 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		91923E3F4B704141919648ED /* LocalizationHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 514957B02686447FAE0EFBDC /* LocalizationHelper.swift */; };
 		18999BB412AAB3920ED23FC0 /* StatusBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46A5AB6AFB8F28849D518BAF /* StatusBarController.swift */; };
 		2B14A904CFF6CC30E804434D /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FC82E353746CED7D6CA3EC9 /* ContentView.swift */; };
-		8AE6F04BBB43451CBBAC3E19 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C25697B9C4AF43EDB2BB36BA /* SettingsView.swift */; };
+		3E68328B1CFD1EEBC8FEFAB5 /* LocalizationHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7398D015F8C47F0F6F125DF0 /* LocalizationHelper.swift */; };
 		6C5E7EEDCBE435D06F512BC4 /* MarkdownEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A4967B3A2337443E1F3CFB9 /* MarkdownEditorView.swift */; };
 		7B33B25CE9C78A7072364FD4 /* editor.html in Resources */ = {isa = PBXBuildFile; fileRef = 10EC6C1F0E029E2712046485 /* editor.html */; };
 		8BB6783892280E78AABB41D7 /* marked.min.js in Resources */ = {isa = PBXBuildFile; fileRef = 826CEF8FC6010268C63E1895 /* marked.min.js */; };
 		BA2E720DC486D0B454520638 /* NotesStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1318AA66AC13FCF99D02E7AA /* NotesStore.swift */; };
+		D3548113BBA7CEE1B5392460 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAE972A773706F561A1133BD /* SettingsView.swift */; };
+		DFF32408141A3AD3680A2251 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1F54744E9B1E04A7FA83CE34 /* Assets.xcassets */; };
 		E46425D8099702DC0330884B /* editor-bundle.js in Resources */ = {isa = PBXBuildFile; fileRef = 5773EA048BC37CB2433B71BD /* editor-bundle.js */; };
 		EA1019687EEFE9E4C158AF4D /* MiniNotesApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 361C46AC0D57AE6C9FE95766 /* MiniNotesApp.swift */; };
 		F830587420CDF9285CC58E22 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F52E9A0B2BC2AD6B03146D /* AppDelegate.swift */; };
@@ -22,18 +23,19 @@
 
 /* Begin PBXFileReference section */
 		10EC6C1F0E029E2712046485 /* editor.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = editor.html; sourceTree = "<group>"; };
-		514957B02686447FAE0EFBDC /* LocalizationHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizationHelper.swift; sourceTree = "<group>"; };
 		1318AA66AC13FCF99D02E7AA /* NotesStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesStore.swift; sourceTree = "<group>"; };
 		16F52E9A0B2BC2AD6B03146D /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		1F54744E9B1E04A7FA83CE34 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		361C46AC0D57AE6C9FE95766 /* MiniNotesApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiniNotesApp.swift; sourceTree = "<group>"; };
 		46A5AB6AFB8F28849D518BAF /* StatusBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarController.swift; sourceTree = "<group>"; };
 		5773EA048BC37CB2433B71BD /* editor-bundle.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "editor-bundle.js"; sourceTree = "<group>"; };
+		7398D015F8C47F0F6F125DF0 /* LocalizationHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizationHelper.swift; sourceTree = "<group>"; };
 		7A4967B3A2337443E1F3CFB9 /* MarkdownEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownEditorView.swift; sourceTree = "<group>"; };
 		7BB76C72A29854BA9C9A3C39 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		826CEF8FC6010268C63E1895 /* marked.min.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = marked.min.js; sourceTree = "<group>"; };
 		8FC82E353746CED7D6CA3EC9 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		C25697B9C4AF43EDB2BB36BA /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		C89DB077C3F292BA098D5603 /* MiniNotes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MiniNotes.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		EAE972A773706F561A1133BD /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -45,12 +47,20 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		137EAA47DA21205D4761E146 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				7398D015F8C47F0F6F125DF0 /* LocalizationHelper.swift */,
+			);
+			path = Helpers;
+			sourceTree = "<group>";
+		};
 		28ED7D318E1E72D980A4906E /* Views */ = {
 			isa = PBXGroup;
 			children = (
 				8FC82E353746CED7D6CA3EC9 /* ContentView.swift */,
 				7A4967B3A2337443E1F3CFB9 /* MarkdownEditorView.swift */,
-				C25697B9C4AF43EDB2BB36BA /* SettingsView.swift */,
+				EAE972A773706F561A1133BD /* SettingsView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -64,20 +74,13 @@
 			path = App;
 			sourceTree = "<group>";
 		};
-		5D219AD98BC646E89883A02C /* Helpers */ = {
-			isa = PBXGroup;
-			children = (
-				514957B02686447FAE0EFBDC /* LocalizationHelper.swift */,
-			);
-			path = Helpers;
-			sourceTree = "<group>";
-		};
 		54CCA5E995E74F9B92C7A5DB /* MiniNotes */ = {
 			isa = PBXGroup;
 			children = (
+				1F54744E9B1E04A7FA83CE34 /* Assets.xcassets */,
 				7BB76C72A29854BA9C9A3C39 /* Info.plist */,
 				54BF0E6CF9449A00729A4DCE /* App */,
-				5D219AD98BC646E89883A02C /* Helpers */,
+				137EAA47DA21205D4761E146 /* Helpers */,
 				9940C35F25D9A42DDB267525 /* Resources */,
 				C3F08C0EE8719159B9D19897 /* StatusBar */,
 				CFFCB2271FD79E9AAD65C8D3 /* Store */,
@@ -179,6 +182,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DFF32408141A3AD3680A2251 /* Assets.xcassets in Resources */,
 				E46425D8099702DC0330884B /* editor-bundle.js in Resources */,
 				7B33B25CE9C78A7072364FD4 /* editor.html in Resources */,
 				8BB6783892280E78AABB41D7 /* marked.min.js in Resources */,
@@ -194,11 +198,11 @@
 			files = (
 				F830587420CDF9285CC58E22 /* AppDelegate.swift in Sources */,
 				2B14A904CFF6CC30E804434D /* ContentView.swift in Sources */,
-				91923E3F4B704141919648ED /* LocalizationHelper.swift in Sources */,
+				3E68328B1CFD1EEBC8FEFAB5 /* LocalizationHelper.swift in Sources */,
 				6C5E7EEDCBE435D06F512BC4 /* MarkdownEditorView.swift in Sources */,
 				EA1019687EEFE9E4C158AF4D /* MiniNotesApp.swift in Sources */,
 				BA2E720DC486D0B454520638 /* NotesStore.swift in Sources */,
-				8AE6F04BBB43451CBBAC3E19 /* SettingsView.swift in Sources */,
+				D3548113BBA7CEE1B5392460 /* SettingsView.swift in Sources */,
 				18999BB412AAB3920ED23FC0 /* StatusBarController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
