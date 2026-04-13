@@ -123,6 +123,18 @@ class BulletWidget extends WidgetType {
   }
 }
 
+class OrderedWidget extends WidgetType {
+  constructor(text) { super(); this.text = text }
+  eq(o) { return this.text === o.text }
+  ignoreEvent() { return true }
+  toDOM() {
+    const s = document.createElement("span")
+    s.className = "lp-ordered"
+    s.textContent = this.text
+    return s
+  }
+}
+
 class CheckboxWidget extends WidgetType {
   constructor(checked) { super(); this.checked = checked }
   eq(o) { return this.checked === o.checked }
@@ -383,13 +395,21 @@ function buildDecorations(view) {
           return false
         }
 
-        // ── Bullet list mark (-, *, +) ───────────────────────────────────────
+        // ── List marks (bullet and ordered) ─────────────────────────────────
         if (name === "ListMark") {
           const parent = node.node.parent
-          if (parent?.name === "ListItem" && parent?.parent?.name === "BulletList") {
-            if (!cursorInRange(state, from, to)) {
-              const hasSpace = to < docLen && state.doc.sliceString(to, to + 1) === " "
-              addWidget(from, to + (hasSpace ? 1 : 0), new BulletWidget())
+          const grandparentName = parent?.parent?.name
+          if (parent?.name === "ListItem") {
+            const hasSpace = to < docLen && state.doc.sliceString(to, to + 1) === " "
+            if (hasSpace) {
+              if (grandparentName === "BulletList") {
+                addLine(from, "lp-bullet-line")
+                addWidget(from, to + 1, new BulletWidget())
+              } else if (grandparentName === "OrderedList") {
+                const text = state.doc.sliceString(from, to)
+                addLine(from, "lp-ordered-line")
+                addWidget(from, to + 1, new OrderedWidget(text))
+              }
             }
           }
           return false
@@ -587,7 +607,22 @@ const editorTheme = EditorView.baseTheme({
     cursor: "pointer",
   },
   ".lp-bullet": {
+    display: "inline-block",
+    width: "1.5em",
+    marginLeft: "-1.5em",
     userSelect: "none",
+  },
+  ".lp-bullet-line": {
+    paddingLeft: "1.5em",
+  },
+  ".lp-ordered": {
+    display: "inline-block",
+    width: "1.5em",
+    marginLeft: "-1.5em",
+    userSelect: "none",
+  },
+  ".lp-ordered-line": {
+    paddingLeft: "1.5em",
   },
   ".lp-checkbox": {
     cursor: "pointer",
