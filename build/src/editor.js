@@ -130,7 +130,6 @@ class CheckboxWidget extends WidgetType {
   toDOM() {
     const s = document.createElement("span")
     s.className = "lp-checkbox" + (this.checked ? " lp-checkbox-checked" : "")
-    if (this.checked) s.textContent = "✓"
     return s
   }
 }
@@ -657,9 +656,6 @@ const editorTheme = EditorView.baseTheme({
     borderRadius: "3px",
     boxSizing: "border-box",
     verticalAlign: "middle",
-    textAlign: "center",
-    textIndent: "0",
-    lineHeight: "1em",
     marginRight: "0.35em",
     cursor: "pointer",
     userSelect: "none",
@@ -667,8 +663,10 @@ const editorTheme = EditorView.baseTheme({
   ".lp-checkbox-checked": {
     background: "#7c3aed",
     borderColor: "#7c3aed",
-    color: "white",
-    fontWeight: "700",
+    backgroundImage: "url(\"data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'><path d='M1.5 5l2.5 2.5 4.5-4' stroke='white' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>\")",
+    backgroundRepeat: "no-repeat",
+    backgroundPosition: "center",
+    backgroundSize: "80%",
   },
   ".lp-task-line": {
     paddingLeft: "1.5em",
