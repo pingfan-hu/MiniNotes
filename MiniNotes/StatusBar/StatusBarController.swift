@@ -15,7 +15,9 @@ class StatusBarController {
         popover.animates = true
 
         if let button = statusItem.button {
-            button.image = NSImage(systemSymbolName: "note.text", accessibilityDescription: "MiniNotes")
+            let config = NSImage.SymbolConfiguration(pointSize: 16, weight: .medium)
+            button.image = NSImage(systemSymbolName: "square.and.pencil", accessibilityDescription: "MiniNotes")?
+                .withSymbolConfiguration(config)
             button.action = #selector(handleClick(_:))
             button.sendAction(on: [.leftMouseUp, .rightMouseUp])
             button.target = self

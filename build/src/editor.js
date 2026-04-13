@@ -516,6 +516,37 @@ function renumberOrderedLists(view) {
   }
 }
 
+// ─── Empty-line selection indicator ──────────────────────────────────────────
+// Native browser selection doesn't highlight empty lines (no text to select).
+// This plugin detects empty lines within the current selection and adds a class
+// so CSS can show a thin strip, matching Obsidian's behaviour.
+
+const emptyLineSelectionPlugin = ViewPlugin.fromClass(
+  class {
+    constructor(view) { this.decorations = this.compute(view) }
+    update(u) {
+      if (u.docChanged || u.selectionSet) this.decorations = this.compute(u.view)
+    }
+    compute(view) {
+      const { state } = view
+      const builder = new RangeSetBuilder()
+      for (const range of state.selection.ranges) {
+        if (range.empty) continue
+        let line = state.doc.lineAt(range.from)
+        while (line.from <= range.to) {
+          if (line.length === 0 && line.from < range.to) {
+            builder.add(line.from, line.from, Decoration.line({ class: 'lp-empty-in-sel' }))
+          }
+          if (line.to >= state.doc.length) break
+          line = state.doc.lineAt(line.to + 1)
+        }
+      }
+      return builder.finish()
+    }
+  },
+  { decorations: v => v.decorations },
+)
+
 // ─── Plugin ───────────────────────────────────────────────────────────────────
 
 const livePreviewPlugin = ViewPlugin.fromClass(
@@ -606,6 +637,10 @@ const editorTheme = EditorView.baseTheme({
   },
   ".cm-content": { padding: "18px 22px", minHeight: "100%", caretColor: "auto" },
   ".cm-line":    { padding: "1px 0" },
+  // Thin selection indicator for empty lines (native selection skips them)
+  ".lp-empty-in-sel": {
+    background: "linear-gradient(to right, rgba(100,130,210,0.35) 0, rgba(100,130,210,0.35) 0.5em, transparent 0.5em)",
+  },
   ".cm-cursor":  { borderLeftWidth: "2px" },
   ".cm-focused": { outline: "none" },
 
@@ -727,6 +762,7 @@ function buildExtensions() {
     markdown({ base: markdownLanguage, codeLanguages: languages }),
     highlightCompartment.of(currentHighlightExt()),
     EditorView.lineWrapping,
+    emptyLineSelectionPlugin,
     livePreviewPlugin,
     interactionHandlers,
     editorTheme,
