@@ -129,8 +129,8 @@ class CheckboxWidget extends WidgetType {
   ignoreEvent() { return false }   // let clicks through to domEventHandlers
   toDOM() {
     const s = document.createElement("span")
-    s.className = "lp-checkbox"
-    s.textContent = this.checked ? "☑\u00a0" : "☐\u00a0"
+    s.className = "lp-checkbox" + (this.checked ? " lp-checkbox-checked" : "")
+    if (this.checked) s.textContent = "✓"
     return s
   }
 }
@@ -391,8 +391,20 @@ function buildDecorations(view) {
             const hasSpace = to < docLen && state.doc.sliceString(to, to + 1) === " "
             if (hasSpace) {
               if (grandparentName === "BulletList") {
-                addLine(from, "lp-bullet-line")
-                addWidget(from, to + 1, new BulletWidget())
+                // Detect task list via raw text: "- [ ] " or "- [x] " after the ListMark
+                const taskStart = to + 1  // character after the space that follows "-"
+                const marker = taskStart + 3 <= docLen ? state.doc.sliceString(taskStart, taskStart + 3) : ""
+                const isTask = marker === "[ ]" || /^\[x\]$/i.test(marker)
+                if (isTask) {
+                  const checked = /x/i.test(marker[1])
+                  const trailingSpace = taskStart + 3 < docLen && state.doc.sliceString(taskStart + 3, taskStart + 4) === " "
+                  addLine(from, "lp-task-line")
+                  if (checked) addLine(from, "lp-task-done")
+                  addWidget(from, taskStart + 3 + (trailingSpace ? 1 : 0), new CheckboxWidget(checked))
+                } else {
+                  addLine(from, "lp-bullet-line")
+                  addWidget(from, to + 1, new BulletWidget())
+                }
               } else if (grandparentName === "OrderedList") {
                 addLine(from, "lp-ordered-line")
               }
@@ -401,15 +413,7 @@ function buildDecorations(view) {
           return false
         }
 
-        // ── Task checkboxes [ ] / [x] ────────────────────────────────────────
-        if (name === "TaskMarker") {
-          if (!cursorInRange(state, from, to)) {
-            const raw = state.doc.sliceString(from, to)
-            const checked = /\[x\]/i.test(raw)
-            addWidget(from, to, new CheckboxWidget(checked))
-          }
-          return false
-        }
+        // TaskMarker is handled inside the ListMark branch above
 
         // ── GFM Table ────────────────────────────────────────────────────────
         if (name === "Table") {
@@ -541,12 +545,13 @@ const interactionHandlers = EditorView.domEventHandlers({
     if (target.classList?.contains("lp-checkbox")) {
       const pos = view.posAtCoords({ x: event.clientX, y: event.clientY }, false)
       if (pos != null) {
-        // Walk syntax tree to find TaskMarker at or near pos
+        // Search the whole line for the TaskMarker (widget now covers "- [ ]" range)
+        const line = view.state.doc.lineAt(pos)
         const tree = syntaxTree(view.state)
         let found = null
         tree.iterate({
-          from: Math.max(0, pos - 1),
-          to: Math.min(view.state.doc.length, pos + 4),
+          from: line.from,
+          to: line.to,
           enter(n) {
             if (n.name === "TaskMarker") { found = { from: n.from, to: n.to }; return false }
           }
@@ -645,8 +650,35 @@ const editorTheme = EditorView.baseTheme({
     textIndent: "-1.5em",
   },
   ".lp-checkbox": {
+    display: "inline-block",
+    width: "1em",
+    height: "1em",
+    border: "1.5px solid rgba(128,128,128,0.5)",
+    borderRadius: "3px",
+    boxSizing: "border-box",
+    verticalAlign: "middle",
+    textAlign: "center",
+    textIndent: "0",
+    lineHeight: "1em",
+    marginRight: "0.35em",
     cursor: "pointer",
     userSelect: "none",
+  },
+  ".lp-checkbox-checked": {
+    background: "#7c3aed",
+    borderColor: "#7c3aed",
+    color: "white",
+    fontWeight: "700",
+  },
+  ".lp-task-line": {
+    paddingLeft: "1.5em",
+    textIndent: "-1.5em",
+  },
+  ".lp-task-done": {
+    textDecoration: "line-through",
+  },
+  ".lp-task-done .lp-checkbox": {
+    textDecoration: "none",
   },
   ".lp-table-source": {
     fontSize: "0 !important",
