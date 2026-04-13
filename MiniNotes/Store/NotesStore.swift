@@ -8,6 +8,8 @@ extension Notification.Name {
 class NotesStore: NSObject, ObservableObject, NSFilePresenter {
     @Published private(set) var content: String = ""
     @Published private(set) var fileURL: URL
+    @Published private(set) var isFileOpen: Bool
+    @Published private(set) var recentFileURL: URL?
     private var saveTask: Task<Void, Never>?
     private static let userDefaultsKey = "notesFilePath"
 
@@ -28,10 +30,15 @@ class NotesStore: NSObject, ObservableObject, NSFilePresenter {
     // MARK: Init / deinit
 
     init(fileURL: URL? = nil) {
+        let stored = UserDefaults.standard.string(forKey: Self.userDefaultsKey)
+        let hasStoredPath = stored != nil && !(stored!.isEmpty)
         let url = fileURL ?? Self.resolveFileURL()
         self.fileURL = url
+        // Show landing page when no file has ever been explicitly chosen
+        self.isFileOpen = fileURL != nil || hasStoredPath
+        self.recentFileURL = nil
         super.init()
-        content = (try? String(contentsOf: url, encoding: .utf8)) ?? ""
+        content = isFileOpen ? ((try? String(contentsOf: url, encoding: .utf8)) ?? "") : ""
         NSFileCoordinator.addFilePresenter(self)
     }
 
@@ -75,6 +82,13 @@ class NotesStore: NSObject, ObservableObject, NSFilePresenter {
         }
     }
 
+    /// Saves the current file and returns to the landing page.
+    func closeFile() {
+        flush()
+        recentFileURL = fileURL
+        isFileOpen = false
+    }
+
     func changeFile(to newURL: URL) {
         // Flush current content to old file immediately
         saveTask?.cancel()
@@ -95,6 +109,7 @@ class NotesStore: NSObject, ObservableObject, NSFilePresenter {
             try? "".write(to: newURL, atomically: true, encoding: .utf8)
         }
         content = (try? String(contentsOf: newURL, encoding: .utf8)) ?? ""
+        isFileOpen = true
         NotificationCenter.default.post(name: .notesFileChanged, object: nil)
     }
 

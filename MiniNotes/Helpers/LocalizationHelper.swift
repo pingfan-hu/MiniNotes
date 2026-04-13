@@ -15,6 +15,12 @@ enum L {
     static var autoSaved: String { isChinese ? "已保存" : "Auto-saved" }
     static var pinTooltipPin: String { isChinese ? "固定窗口" : "Keep window open" }
     static var pinTooltipUnpin: String { isChinese ? "取消固定" : "Auto-hide window" }
+    static var exitTooltip: String { isChinese ? "关闭文件" : "Close file" }
+
+    // Landing page
+    static func reopenFile(name: String) -> String {
+        isChinese ? "重新打开 \(name)" : "Reopen \"\(name)\""
+    }
 
     // Settings
     static var settingsTitle: String { isChinese ? "文件位置" : "File Location" }

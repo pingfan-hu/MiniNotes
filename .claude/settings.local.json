@@ -34,7 +34,8 @@
       "Bash(curl -s \"https://raw.githubusercontent.com/tw93/MiaoYan/main/Helpers/CustomTextStorage.swift\")",
       "Bash(curl -s \"https://raw.githubusercontent.com/tw93/MiaoYan/main/Helpers/MarkdownRuleHighlighter.swift\")",
       "Bash(fc-list)",
-      "Bash(otfinfo --info /Users/pingfan/Library/Fonts/MapleMono-NF-CN-Regular.ttf)"
+      "Bash(otfinfo --info /Users/pingfan/Library/Fonts/MapleMono-NF-CN-Regular.ttf)",
+      "Bash(defaults delete:*)"
     ]
   },
   "hooks": {

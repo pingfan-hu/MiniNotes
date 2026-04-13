@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		18999BB412AAB3920ED23FC0 /* StatusBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46A5AB6AFB8F28849D518BAF /* StatusBarController.swift */; };
+		2764AF53725D33590F9D5915 /* LandingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A35D58F231B0390F5C595B /* LandingView.swift */; };
 		2B14A904CFF6CC30E804434D /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FC82E353746CED7D6CA3EC9 /* ContentView.swift */; };
 		3E68328B1CFD1EEBC8FEFAB5 /* LocalizationHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7398D015F8C47F0F6F125DF0 /* LocalizationHelper.swift */; };
 		6C5E7EEDCBE435D06F512BC4 /* MarkdownEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A4967B3A2337443E1F3CFB9 /* MarkdownEditorView.swift */; };
@@ -34,6 +35,7 @@
 		7BB76C72A29854BA9C9A3C39 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		826CEF8FC6010268C63E1895 /* marked.min.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = marked.min.js; sourceTree = "<group>"; };
 		8FC82E353746CED7D6CA3EC9 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		C6A35D58F231B0390F5C595B /* LandingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LandingView.swift; sourceTree = "<group>"; };
 		C89DB077C3F292BA098D5603 /* MiniNotes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MiniNotes.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EAE972A773706F561A1133BD /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -59,6 +61,7 @@
 			isa = PBXGroup;
 			children = (
 				8FC82E353746CED7D6CA3EC9 /* ContentView.swift */,
+				C6A35D58F231B0390F5C595B /* LandingView.swift */,
 				7A4967B3A2337443E1F3CFB9 /* MarkdownEditorView.swift */,
 				EAE972A773706F561A1133BD /* SettingsView.swift */,
 			);
@@ -198,6 +201,7 @@
 			files = (
 				F830587420CDF9285CC58E22 /* AppDelegate.swift in Sources */,
 				2B14A904CFF6CC30E804434D /* ContentView.swift in Sources */,
+				2764AF53725D33590F9D5915 /* LandingView.swift in Sources */,
 				3E68328B1CFD1EEBC8FEFAB5 /* LocalizationHelper.swift in Sources */,
 				6C5E7EEDCBE435D06F512BC4 /* MarkdownEditorView.swift in Sources */,
 				EA1019687EEFE9E4C158AF4D /* MiniNotesApp.swift in Sources */,

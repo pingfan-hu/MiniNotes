@@ -11,8 +11,17 @@ struct ContentView: View {
     }
 
     var body: some View {
+        if notesStore.isFileOpen {
+            editorView
+        } else {
+            LandingView()
+                .environmentObject(notesStore)
+        }
+    }
+
+    private var editorView: some View {
         VStack(spacing: 0) {
-            // Tab bar: [filename | pin | Open in Obsidian]
+            // Tab bar: [filename | pin | Open in Obsidian | exit]
             HStack(spacing: 0) {
                 ToolbarActionButton(
                     corners: RectangleCornerRadii(
@@ -38,7 +47,7 @@ struct ContentView: View {
 
                 ToolbarActionButton(
                     corners: RectangleCornerRadii(
-                        topLeading: 0, bottomLeading: 0, bottomTrailing: 0, topTrailing: 10
+                        topLeading: 0, bottomLeading: 0, bottomTrailing: 0, topTrailing: 0
                     )
                 ) {
                     openInObsidian()
@@ -47,6 +56,12 @@ struct ContentView: View {
                         .font(Font.custom("LXGWWenKai-Medium", size: 14))
                         .lineLimit(1)
                 }
+
+                // Exit: save + return to landing page
+                ExitButton {
+                    notesStore.closeFile()
+                }
+                .help(L.exitTooltip)
             }
             .padding(.horizontal, 8)
             .padding(.top, 8)
@@ -74,12 +89,55 @@ struct ContentView: View {
     }
 
     private func openInObsidian() {
+        guard NSWorkspace.shared.urlForApplication(withBundleIdentifier: "md.obsidian") != nil else {
+            return
+        }
         let path = notesStore.fileURL.path
         guard let encoded = path.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed),
               let url = URL(string: "obsidian://open?path=\(encoded)") else { return }
         let opened = NSWorkspace.shared.open(url)
         if opened {
             NotificationCenter.default.post(name: .miniNotesClosePopover, object: nil)
+        }
+    }
+}
+
+private struct ExitButton: View {
+    let action: () -> Void
+
+    @State private var isHovering = false
+    @State private var isPressed = false
+
+    var body: some View {
+        Button(action: {
+            withAnimation(.easeInOut(duration: 0.1)) { isPressed = true }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                withAnimation(.easeInOut(duration: 0.1)) { isPressed = false }
+            }
+            action()
+        }) {
+            Image(systemName: "xmark")
+                .font(.system(size: 11))
+                .foregroundColor(.secondary)
+                .frame(width: 28)
+                .padding(.vertical, 6)
+                .background(
+                    Group {
+                        if isPressed {
+                            Color(red: 0.42, green: 0.50, blue: 0.77).opacity(0.2)
+                        } else if isHovering {
+                            Color(red: 0.42, green: 0.50, blue: 0.77).opacity(0.1)
+                        } else {
+                            Color.clear
+                        }
+                    }
+                )
+                .contentShape(Rectangle())
+                .scaleEffect(isPressed ? 0.97 : 1.0)
+        }
+        .buttonStyle(.plain)
+        .onHover { hovering in
+            withAnimation(.easeInOut(duration: 0.15)) { isHovering = hovering }
         }
     }
 }
