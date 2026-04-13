@@ -57,6 +57,24 @@ class CheckboxWidget extends WidgetType {
   }
 }
 
+// Normalize a GFM table so header/separator/data rows all share the same column count.
+// Marked requires this; Obsidian is more lenient, so real-world tables may be mismatched.
+function normalizeTableMd(tableMd) {
+  const lines = tableMd.trim().split('\n')
+  if (lines.length < 2) return tableMd
+  const isSep = l => /^\|[\s|:-]+\|$/.test(l.trim())
+  const sepIdx = lines.findIndex(isSep)
+  if (sepIdx < 0) return tableMd
+  const countCols = l => l.split('|').length - 2
+  const target = Math.max(...lines.map(countCols))
+  if (target < 1) return tableMd
+  return lines.map((line, i) => {
+    const cells = line.split('|').slice(1, -1)
+    while (cells.length < target) cells.push(i === sepIdx ? '---' : '   ')
+    return '|' + cells.slice(0, target).join('|') + '|'
+  }).join('\n')
+}
+
 // Parse each table cell's source position for editable mapping.
 function parseTableCells(state, tableFrom, tableTo) {
   const docLen = state.doc.length
@@ -107,11 +125,17 @@ class TableWidget extends WidgetType {
       ;[...domTr.querySelectorAll("th, td")].forEach((domCell, col) => {
         const cd = rowData.cells[col]
         if (!cd) return
-        // Show raw markdown text so edits map cleanly back to source
-        domCell.textContent = cd.text
+        // Show rendered markdown when not focused; plain source when focused
+        domCell.innerHTML = marked.parseInline(cd.text)
         domCell.contentEditable = "true"
         domCell.spellcheck = false
-        domCell.style.cssText += ";outline:none;white-space:pre-wrap;cursor:text"
+        domCell.style.cssText += ";outline:none;cursor:text"
+
+        domCell.addEventListener("focus", () => {
+          // Switch to plain markdown for editing
+          domCell.textContent = cd.text
+          selectAllInEl(domCell)
+        })
 
         domCell.addEventListener("keydown", e => {
           if (e.key === "Tab") {
@@ -129,6 +153,8 @@ class TableWidget extends WidgetType {
         domCell.addEventListener("blur", () => {
           const newText = domCell.innerText.replace(/\n/g, " ")
           pending[cd.from] = { to: cd.to, insert: " " + newText + " " }
+          // Restore rendered HTML
+          domCell.innerHTML = marked.parseInline(newText || cd.text)
           // Dispatch only when focus fully leaves the table
           setTimeout(() => {
             if (wrap.contains(document.activeElement)) return
@@ -143,6 +169,13 @@ class TableWidget extends WidgetType {
       })
       dataIdx++
     })
+
+    // Open links in cells without focusing the cell
+    wrap.addEventListener("mousedown", e => {
+      const a = e.target.closest("a[href]")
+      if (a) { e.preventDefault(); openURL(a.getAttribute("href")) }
+    })
+
     return wrap
   }
 }
@@ -298,14 +331,24 @@ function buildDecorations(view) {
         if (name === "Table") {
           try {
             const firstLine = state.doc.lineAt(from)
-            const lastLine  = state.doc.lineAt(Math.min(to, docLen - 1))
-            const tableMd   = state.doc.sliceString(firstLine.from, lastLine.to)
-            const html      = marked.parse(tableMd)
+            // Don't trust lezer's `to` — scan lines explicitly.
+            // A table row must start with '|'. Stop at the first non-table line.
+            let lastLine = firstLine
+            let scanPos = firstLine.to + 1
+            while (scanPos < docLen) {
+              const ln = state.doc.lineAt(scanPos)
+              const text = state.doc.sliceString(ln.from, ln.to)
+              if (!text.trimStart().startsWith('|')) break
+              lastLine = ln
+              scanPos = ln.to + 1
+            }
+            const tableMd = state.doc.sliceString(firstLine.from, lastLine.to)
+            const html    = marked.parse(normalizeTableMd(tableMd))
             if (html.includes("<table")) {
               const rows = parseTableCells(state, firstLine.from, lastLine.to)
               // Replace first line with editable table widget (always rendered)
               addWidget(firstLine.from, firstLine.to, new TableWidget(html, rows))
-              // Hide remaining table lines
+              // Hide remaining table lines (rows 2..N)
               let linePos = firstLine.to + 1
               while (linePos <= lastLine.from) {
                 const ln = state.doc.lineAt(linePos)
@@ -483,13 +526,17 @@ const editorTheme = EditorView.baseTheme({
   ".lp-table-wrap": {
     display: "block",
     margin: "4px 0",
+    maxWidth: "100%",
     overflowX: "auto",
+    // Isolate table overflow so only the table scrolls, not the page
+    contain: "inline-size",
   },
   ".lp-table-wrap table": {
     borderCollapse: "collapse",
     fontSize: "14px",
     lineHeight: "1.6",
-    width: "100%",
+    width: "max-content",  // natural column widths; wrapper scrolls when wider than panel
+    minWidth: "0",
   },
   ".lp-table-wrap th": {
     border: "1px solid rgba(128,128,128,0.3)",
