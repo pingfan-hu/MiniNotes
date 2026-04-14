@@ -35,7 +35,19 @@
       "Bash(curl -s \"https://raw.githubusercontent.com/tw93/MiaoYan/main/Helpers/MarkdownRuleHighlighter.swift\")",
       "Bash(fc-list)",
       "Bash(otfinfo --info /Users/pingfan/Library/Fonts/MapleMono-NF-CN-Regular.ttf)",
-      "Bash(defaults delete:*)"
+      "Bash(defaults delete:*)",
+      "Bash(security find-identity:*)",
+      "Bash(git:*)",
+      "Bash(xcodebuild -project MiniNotes.xcodeproj -scheme MiniNotes -configuration Release clean build)",
+      "Read(//Users/pingfan/Library/Developer/Xcode/DerivedData/**)",
+      "Bash(codesign --force --deep --sign 'Developer ID Application: Pingfan Hu \\(XC2WL5WN7J\\)' --options runtime '~/Library/Developer/Xcode/DerivedData/MiniNotes-*/Build/Products/Release/MiniNotes.app')",
+      "Bash(codesign:*)",
+      "Bash(rm -rf dist/dmg-temp dist/MiniNotes-v0.1.0.*)",
+      "Bash(cp -R ~/Library/Developer/Xcode/DerivedData/MiniNotes-*/Build/Products/Release/MiniNotes.app dist/dmg-temp/)",
+      "Bash(ln -s /Applications dist/dmg-temp/Applications)",
+      "Bash(hdiutil create:*)",
+      "Bash(ditto -c -k --sequesterRsrc --keepParent ~/Library/Developer/Xcode/DerivedData/MiniNotes-*/Build/Products/Release/MiniNotes.app dist/MiniNotes-v0.1.0.zip)",
+      "Bash(xcrun notarytool:*)"
     ]
   },
   "hooks": {

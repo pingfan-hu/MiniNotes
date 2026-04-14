@@ -8,8 +8,8 @@ struct LandingView: View {
         VStack(spacing: 0) {
             Spacer()
 
-            // App icon + title
-            VStack(spacing: 12) {
+            // App icon + title + version
+            VStack(spacing: 8) {
                 Image(nsImage: NSApp.applicationIconImage)
                     .resizable()
                     .frame(width: 72, height: 72)
@@ -17,6 +17,10 @@ struct LandingView: View {
                 Text("MiniNotes")
                     .font(Font.custom("LXGWWenKai-Medium", size: 22))
                     .foregroundColor(.primary)
+
+                Text("v\(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0.1.0")")
+                    .font(Font.custom("MapleMono-NF-CN-Regular", size: 11))
+                    .foregroundColor(.secondary)
             }
 
             Spacer().frame(height: 32)
@@ -40,6 +44,15 @@ struct LandingView: View {
             .frame(width: 260)
 
             Spacer()
+
+            // Author info
+            VStack(spacing: 3) {
+                Text("Pingfan Hu")
+                    .font(Font.custom("LXGWWenKai-Medium", size: 11))
+                    .foregroundColor(.secondary)
+                WebsiteLink(label: "pingfanhu.com", url: "https://pingfanhu.com")
+            }
+            .padding(.bottom, 14)
         }
         .frame(width: 620, height: 500)
         .background(Color(nsColor: NSColor.controlBackgroundColor).opacity(0.3))
@@ -64,6 +77,32 @@ struct LandingView: View {
         panel.canCreateDirectories = true
         guard panel.runModal() == .OK, let url = panel.url else { return }
         notesStore.changeFile(to: url)
+    }
+}
+
+private struct WebsiteLink: View {
+    let label: String
+    let url: String
+
+    @State private var isHovering = false
+
+    var body: some View {
+        Text(label)
+            .font(Font.custom("MapleMono-NF-CN-Regular", size: 11))
+            .foregroundColor(isHovering ? Color(red: 0.42, green: 0.50, blue: 0.77) : .secondary)
+            .underline(isHovering)
+            .onHover { hovering in
+                isHovering = hovering
+                if hovering {
+                    NSCursor.pointingHand.push()
+                } else {
+                    NSCursor.pop()
+                }
+            }
+            .onTapGesture {
+                if let u = URL(string: url) { NSWorkspace.shared.open(u) }
+                NotificationCenter.default.post(name: .miniNotesClosePopover, object: nil)
+            }
     }
 }
 
