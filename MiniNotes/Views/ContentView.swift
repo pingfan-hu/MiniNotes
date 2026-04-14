@@ -21,11 +21,22 @@ struct ContentView: View {
 
     private var editorView: some View {
         VStack(spacing: 0) {
-            // Tab bar: [filename | pin | Open in Obsidian | exit]
+            // Tab bar: [pin | filename | Open in Obsidian | exit]
             HStack(spacing: 0) {
-                ToolbarActionButton(
+                // Pin toggle
+                PinButton(
+                    isPinned: isPinned,
                     corners: RectangleCornerRadii(
                         topLeading: 10, bottomLeading: 0, bottomTrailing: 0, topTrailing: 0
+                    )
+                ) {
+                    togglePin()
+                }
+                .help(isPinned ? L.pinTooltipUnpin : L.pinTooltipPin)
+
+                ToolbarActionButton(
+                    corners: RectangleCornerRadii(
+                        topLeading: 0, bottomLeading: 0, bottomTrailing: 0, topTrailing: 0
                     )
                 ) {
                     showingSettings = true
@@ -38,12 +49,6 @@ struct ContentView: View {
                             .lineLimit(1)
                     }
                 }
-
-                // Pin toggle
-                PinButton(isPinned: isPinned) {
-                    togglePin()
-                }
-                .help(isPinned ? L.pinTooltipUnpin : L.pinTooltipPin)
 
                 ToolbarActionButton(
                     corners: RectangleCornerRadii(
@@ -58,11 +63,16 @@ struct ContentView: View {
                 }
 
                 // Exit: save + return to landing page
-                ExitButton {
+                ExitButton(
+                    corners: RectangleCornerRadii(
+                        topLeading: 0, bottomLeading: 0, bottomTrailing: 0, topTrailing: 10
+                    )
+                ) {
                     notesStore.closeFile()
                 }
                 .help(L.exitTooltip)
             }
+            .frame(height: 30)
             .padding(.horizontal, 8)
             .padding(.top, 8)
 
@@ -103,6 +113,7 @@ struct ContentView: View {
 }
 
 private struct ExitButton: View {
+    let corners: RectangleCornerRadii
     let action: () -> Void
 
     @State private var isHovering = false
@@ -120,7 +131,7 @@ private struct ExitButton: View {
                 .font(.system(size: 11))
                 .foregroundColor(.secondary)
                 .frame(width: 28)
-                .padding(.vertical, 6)
+                .frame(maxHeight: .infinity)
                 .background(
                     Group {
                         if isPressed {
@@ -132,6 +143,7 @@ private struct ExitButton: View {
                         }
                     }
                 )
+                .clipShape(UnevenRoundedRectangle(cornerRadii: corners))
                 .contentShape(Rectangle())
                 .scaleEffect(isPressed ? 0.97 : 1.0)
         }
@@ -144,6 +156,7 @@ private struct ExitButton: View {
 
 private struct PinButton: View {
     let isPinned: Bool
+    let corners: RectangleCornerRadii
     let action: () -> Void
 
     @State private var isHovering = false
@@ -161,7 +174,7 @@ private struct PinButton: View {
                 .font(.system(size: 11))
                 .foregroundColor(isPinned ? Color(red: 0.42, green: 0.50, blue: 0.77) : .secondary)
                 .frame(width: 28)
-                .padding(.vertical, 6)
+                .frame(maxHeight: .infinity)
                 .background(
                     Group {
                         if isPressed {
@@ -173,6 +186,7 @@ private struct PinButton: View {
                         }
                     }
                 )
+                .clipShape(UnevenRoundedRectangle(cornerRadii: corners))
                 .contentShape(Rectangle())
                 .scaleEffect(isPressed ? 0.97 : 1.0)
         }
