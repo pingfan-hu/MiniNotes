@@ -15,6 +15,7 @@
 		7B33B25CE9C78A7072364FD4 /* editor.html in Resources */ = {isa = PBXBuildFile; fileRef = 10EC6C1F0E029E2712046485 /* editor.html */; };
 		8BB6783892280E78AABB41D7 /* marked.min.js in Resources */ = {isa = PBXBuildFile; fileRef = 826CEF8FC6010268C63E1895 /* marked.min.js */; };
 		BA2E720DC486D0B454520638 /* NotesStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1318AA66AC13FCF99D02E7AA /* NotesStore.swift */; };
+		C61611B436D89D89CD584662 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = B46206482AA56575A23BC3ED /* Sparkle */; };
 		D3548113BBA7CEE1B5392460 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAE972A773706F561A1133BD /* SettingsView.swift */; };
 		DFF32408141A3AD3680A2251 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1F54744E9B1E04A7FA83CE34 /* Assets.xcassets */; };
 		E46425D8099702DC0330884B /* editor-bundle.js in Resources */ = {isa = PBXBuildFile; fileRef = 5773EA048BC37CB2433B71BD /* editor-bundle.js */; };
@@ -39,6 +40,17 @@
 		C89DB077C3F292BA098D5603 /* MiniNotes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MiniNotes.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EAE972A773706F561A1133BD /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		29C5A0F790946699B06F4997 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C61611B436D89D89CD584662 /* Sparkle in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		02EEA06D36A81A92A5BDCDDF /* Products */ = {
@@ -135,6 +147,7 @@
 			buildPhases = (
 				08D9C4F6CACCAEE2F3DDDD55 /* Sources */,
 				5E8CB8719E717DFE847DDC5F /* Resources */,
+				29C5A0F790946699B06F4997 /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -142,6 +155,7 @@
 			);
 			name = MiniNotes;
 			packageProductDependencies = (
+				B46206482AA56575A23BC3ED /* Sparkle */,
 			);
 			productName = MiniNotes;
 			productReference = C89DB077C3F292BA098D5603 /* MiniNotes.app */;
@@ -170,6 +184,9 @@
 			);
 			mainGroup = 7E8D38DF09F9E716BB33D2DB;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				AD7C7686B7D1378C7514073F /* XCRemoteSwiftPackageReference "Sparkle" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 02EEA06D36A81A92A5BDCDDF /* Products */;
 			projectDirPath = "";
@@ -399,6 +416,25 @@
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		AD7C7686B7D1378C7514073F /* XCRemoteSwiftPackageReference "Sparkle" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sparkle-project/Sparkle";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		B46206482AA56575A23BC3ED /* Sparkle */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AD7C7686B7D1378C7514073F /* XCRemoteSwiftPackageReference "Sparkle" */;
+			productName = Sparkle;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 1C418A2674808E58F1DBDC06 /* Project object */;
 }

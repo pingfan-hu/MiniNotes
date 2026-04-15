@@ -5,18 +5,29 @@
     <link>https://raw.githubusercontent.com/pingfan-hu/MiniNotes/main/appcast.xml</link>
     <description>Most recent changes with links to updates.</description>
     <language>en</language>
+
+    <!-- Latest release -->
     <item>
       <title>Version 0.1.0</title>
+      <link>https://github.com/pingfan-hu/MiniNotes/releases/tag/v0.1.0</link>
       <sparkle:version>0.1.0</sparkle:version>
       <sparkle:shortVersionString>0.1.0</sparkle:shortVersionString>
-      <pubDate>Tue, 15 Apr 2026 00:00:00 +0000</pubDate>
+      <description><![CDATA[
+        <h2>What's New</h2>
+        <ul>
+          <li>Initial release of MiniNotes: a macOS menu bar Markdown editor with live preview.</li>
+        </ul>
+      ]]></description>
+      <pubDate>Mon, 14 Apr 2026 16:40:00 +0000</pubDate>
       <enclosure
-        url="https://github.com/pingfan-hu/MiniNotes/releases/download/v0.1.0/MiniNotes-v0.1.0.dmg"
+        url="https://github.com/pingfan-hu/MiniNotes/releases/download/v0.1.0/MiniNotes-v0.1.0.zip"
+        sparkle:edSignature="K+LaTG0qDysNadYYjdpjHXbgccOJQ5VrUt8Mc1yyp6t3VEI1673Zxu03FJkWhE6BDPdhgxWhL7HQ5sDokhrgCg=="
         sparkle:version="0.1.0"
         sparkle:shortVersionString="0.1.0"
-        length="2355953"
-        type="application/x-apple-diskimage"
+        length="2037357"
+        type="application/octet-stream"
       />
     </item>
+
   </channel>
 </rss>

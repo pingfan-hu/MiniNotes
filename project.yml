@@ -4,12 +4,20 @@ options:
   deploymentTarget:
     macOS: "13.0"
 
+packages:
+  Sparkle:
+    url: https://github.com/sparkle-project/Sparkle
+    from: 2.0.0
+
 targets:
   MiniNotes:
     type: application
     platform: macOS
     sources:
       - path: MiniNotes
+    dependencies:
+      - package: Sparkle
+        product: Sparkle
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.pingfan.MiniNotes
@@ -30,3 +38,5 @@ targets:
         CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
         LSUIElement: YES
         NSPrincipalClass: NSApplication
+        SUFeedURL: "https://raw.githubusercontent.com/pingfan-hu/MiniNotes/main/appcast.xml"
+        SUPublicEDKey: "6mtHULKo0D4PNvOV9HwEOzuX1lFUVPaQRt9Yn/V2mnI="

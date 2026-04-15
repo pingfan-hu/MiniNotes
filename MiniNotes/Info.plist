@@ -24,5 +24,9 @@
 	<true/>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+	<key>SUFeedURL</key>
+	<string>https://raw.githubusercontent.com/pingfan-hu/MiniNotes/main/appcast.xml</string>
+	<key>SUPublicEDKey</key>
+	<string>6mtHULKo0D4PNvOV9HwEOzuX1lFUVPaQRt9Yn/V2mnI=</string>
 </dict>
 </plist>
