@@ -308,14 +308,14 @@ function buildDecorations(view) {
           const line = state.doc.lineAt(from)
           addLine(line.from, HEADING_CLASS[name])
           const markNode = node.node.firstChild
-          if (markNode?.name !== "HeaderMark") return false
+          if (markNode?.name !== "HeaderMark") return
           if (cursorOnLine(state, line.from, line.to)) {
             addMark(markNode.from, markNode.to, "lp-syntax-dim")
           } else {
             const hasSpace = state.doc.sliceString(markNode.to, markNode.to + 1) === " "
             addReplace(markNode.from, markNode.to + (hasSpace ? 1 : 0))
           }
-          return false
+          // No return false — allow recursion so links/bold/italic inside headings are decorated
         }
 
         // ── Bold ─────────────────────────────────────────────────────────────

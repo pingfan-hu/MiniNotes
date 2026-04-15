@@ -53,7 +53,22 @@
       "Bash(rm -rf dist/dmg-temp dist/MiniNotes-v0.1.0.dmg dist/MiniNotes-v0.1.0.zip)",
       "Bash(mkdir -p dist/dmg-temp)",
       "Bash(ditto -c -k --sequesterRsrc --keepParent '~/Library/Developer/Xcode/DerivedData/MiniNotes-*/Build/Products/Release/MiniNotes.app' dist/MiniNotes-v0.1.0.zip)",
-      "Bash(xcodebuild -project MiniNotes.xcodeproj -scheme MiniNotes -configuration Debug build)"
+      "Bash(xcodebuild -project MiniNotes.xcodeproj -scheme MiniNotes -configuration Debug build)",
+      "Read(//Users/pingfan/.agents/skills/check/**)",
+      "Bash(ls MiniNotes/*.entitlements)",
+      "Bash(ls MiniNotes/**/*.entitlements)",
+      "Read(//tmp/**)",
+      "Bash(rm -rf /tmp/minijunk)",
+      "Bash(curl -s https://api.github.com/repos/sparkle-project/Sparkle/releases/latest)",
+      "Bash(mkdir -p /tmp/sparkle-tools)",
+      "Bash(curl -L -o /tmp/sparkle-tools/Sparkle-2.9.1.tar.xz https://github.com/sparkle-project/Sparkle/releases/download/2.9.1/Sparkle-2.9.1.tar.xz)",
+      "Bash(tar -xf Sparkle-2.9.1.tar.xz)",
+      "Bash(/tmp/sparkle-tools/generate_keys:*)",
+      "Bash(/tmp/sparkle-tools/bin/generate_keys:*)",
+      "Bash(/tmp/sparkle-tools/bin/sign_update:*)",
+      "Bash(xcodebuild -project MiniNotes.xcodeproj -scheme MiniNotes -configuration Debug -resolvePackageDependencies)",
+      "Bash(xcodebuild -project MiniNotes.xcodeproj -scheme MiniNotes -configuration Release build)",
+      "Skill(update-config)"
     ]
   },
   "hooks": {
