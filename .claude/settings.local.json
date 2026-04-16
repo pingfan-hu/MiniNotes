@@ -79,7 +79,14 @@
       "Bash(sips -z 55 55 /tmp/github-mark.png --out /tmp/github-logo@1x.png)",
       "Bash(grep -v \"^$\")",
       "Bash(sudo xcodebuild:*)",
-      "mcp__ide__getDiagnostics"
+      "mcp__ide__getDiagnostics",
+      "Bash(security find-certificate:*)",
+      "Bash(security list-keychains:*)",
+      "Bash(ls:*)",
+      "Bash(rm -rf dist/dmg-temp dist/MiniNotes-v0.1.2.*)",
+      "Bash(cp -R ~/Library/Developer/Xcode/DerivedData/MiniNotes-dqmwdyrthfgyezeddoegrwdqawje/Build/Products/Release/MiniNotes.app dist/dmg-temp/)",
+      "Bash(rm:*)",
+      "Bash(ditto -c -k --sequesterRsrc --keepParent ~/Library/Developer/Xcode/DerivedData/MiniNotes-dqmwdyrthfgyezeddoegrwdqawje/Build/Products/Release/MiniNotes.app dist/MiniNotes-v0.1.2.zip)"
     ]
   },
   "hooks": {
