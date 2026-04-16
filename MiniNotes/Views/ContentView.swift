@@ -153,7 +153,7 @@ private struct ModeButtonGroup: View {
                 onSelect: onSelect
             )
             ModeButton(
-                icon: "eye",
+                icon: "book",
                 mode: .view,
                 current: current,
                 tooltip: L.modeViewTooltip,
