@@ -91,7 +91,12 @@
       "Bash(security find-generic-password:*)",
       "Bash(/Users/pingfan/Library/Developer/Xcode/DerivedData/MiniNotes-dqmwdyrthfgyezeddoegrwdqawje/SourcePackages/artifacts/sparkle/Sparkle/bin/generate_keys -x /tmp/sparkle_private_key.txt)",
       "Bash(/Users/pingfan/Library/Developer/Xcode/DerivedData/MiniNotes-dqmwdyrthfgyezeddoegrwdqawje/SourcePackages/artifacts/sparkle/Sparkle/bin/generate_keys -p)",
-      "Bash(/Users/pingfan/Library/Developer/Xcode/DerivedData/MiniNotes-dqmwdyrthfgyezeddoegrwdqawje/SourcePackages/artifacts/sparkle/Sparkle/bin/generate_keys --print-public-key)"
+      "Bash(/Users/pingfan/Library/Developer/Xcode/DerivedData/MiniNotes-dqmwdyrthfgyezeddoegrwdqawje/SourcePackages/artifacts/sparkle/Sparkle/bin/generate_keys --print-public-key)",
+      "mcp__claude_ai_TinyFish__fetch_content",
+      "Bash(sips:*)",
+      "Bash(find:*)",
+      "Bash(./scripts/create-dmg.sh:*)",
+      "Bash(./scripts/rebuild-and-relaunch.sh)"
     ]
   },
   "hooks": {

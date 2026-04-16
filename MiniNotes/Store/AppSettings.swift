@@ -5,6 +5,10 @@ import ServiceManagement
 
 // MARK: - Enums
 
+enum EditorMode: String {
+    case source, edit, view
+}
+
 enum AppLanguage: String, CaseIterable, Identifiable {
     case system, chinese, english
     var id: String { rawValue }

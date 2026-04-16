@@ -75,7 +75,7 @@ Built on CodeMirror 6. Key features:
 - **Tables**: rendered as interactive HTML widgets via `TableWidget` (`WidgetType`); cells are editable `contenteditable` divs.
 - **Checkboxes**: `- [ ]` / `- [x]` task list items rendered as clickable checkbox widgets.
 - **Ordered list auto-renumber**: `renumberOrderedLists` keeps list numbers correct on every edit.
-- **`drawSelection` is NOT used** — native browser selection is kept; the empty-line plugin fills the gap.
+- **`drawSelection` is used** — custom cursor/selection rendering eliminates WebKit ghost-caret artifacts. `emptyLineSelectionPlugin` complements it by highlighting empty lines inside selections (which `drawSelection` skips).
 
 CSS classes applied by the plugin: `lp-h1`–`lp-h6`, `lp-strong`, `lp-em`, `lp-code`, `lp-fenced-line`, `lp-link`, `lp-bullet`, `lp-bullet-line`, `lp-ordered-line`, `lp-checkbox`, `lp-checkbox-checked`, `lp-empty-in-sel`.
 

@@ -1,4 +1,4 @@
-import { EditorView, ViewPlugin, Decoration, WidgetType, keymap } from "@codemirror/view"
+import { EditorView, ViewPlugin, Decoration, WidgetType, keymap, drawSelection } from "@codemirror/view"
 import { EditorState, RangeSetBuilder, Compartment, StateEffect } from "@codemirror/state"
 import { markdown, markdownLanguage } from "@codemirror/lang-markdown"
 import { syntaxTree, HighlightStyle, syntaxHighlighting } from "@codemirror/language"
@@ -67,6 +67,10 @@ const darkHighlightStyle = HighlightStyle.define([
 ])
 
 const highlightCompartment = new Compartment()
+const readOnlyCompartment  = new Compartment()
+const editableCompartment  = new Compartment()
+const modeChangeEffect     = StateEffect.define()
+let _editorMode = 'edit'
 
 function isDarkMode() {
   return window.matchMedia("(prefers-color-scheme: dark)").matches
@@ -79,8 +83,12 @@ function currentHighlightExt() {
 ;(function() {
   const s = document.createElement("style")
   s.textContent = [
-    ":root{--mn-code-bg:rgba(128,128,128,0.08);--mn-inline-bg:rgba(128,128,128,0.15)}",
-    "@media(prefers-color-scheme:dark){:root{--mn-code-bg:rgba(255,255,255,0.09);--mn-inline-bg:rgba(255,255,255,0.09)}}",
+    ":root{--mn-code-bg:rgba(128,128,128,0.08);--mn-inline-bg:rgba(128,128,128,0.15);--mn-num-color:#7c619a}",
+    "@media(prefers-color-scheme:dark){:root{--mn-code-bg:rgba(255,255,255,0.09);--mn-inline-bg:rgba(255,255,255,0.09);--mn-num-color:#a68bbf}}",
+    /* Suppress drawSelection's full-width cm-selectionBackground divs; native ::selection is used instead */
+    ".cm-editor .cm-selectionBackground{background:transparent!important}",
+    /* Native ::selection — WebKit renders these tightly around text (not full-width), giving correct behavior */
+    ".cm-editor .cm-line::selection,.cm-editor .cm-line>*::selection{background:rgba(100,130,210,0.35)!important}",
   ].join("")
   document.head.appendChild(s)
 })()
@@ -119,6 +127,18 @@ class BulletWidget extends WidgetType {
     const s = document.createElement("span")
     s.className = "lp-bullet"
     s.textContent = "•\u00a0"
+    return s
+  }
+}
+
+class OrderedWidget extends WidgetType {
+  constructor(marker) { super(); this.marker = marker }
+  eq(o) { return this.marker === o.marker }
+  ignoreEvent() { return true }
+  toDOM() {
+    const s = document.createElement("span")
+    s.className = "lp-ordered-mark"
+    s.textContent = this.marker
     return s
   }
 }
@@ -309,7 +329,7 @@ function buildDecorations(view) {
           addLine(line.from, HEADING_CLASS[name])
           const markNode = node.node.firstChild
           if (markNode?.name !== "HeaderMark") return
-          if (cursorOnLine(state, line.from, line.to)) {
+          if (_editorMode === 'source' || (_editorMode !== 'view' && cursorOnLine(state, line.from, line.to))) {
             addMark(markNode.from, markNode.to, "lp-syntax-dim")
           } else {
             const hasSpace = state.doc.sliceString(markNode.to, markNode.to + 1) === " "
@@ -320,7 +340,7 @@ function buildDecorations(view) {
 
         // ── Bold ─────────────────────────────────────────────────────────────
         if (name === "StrongEmphasis") {
-          if (!cursorInRange(state, from, to)) {
+          if (_editorMode !== 'source' && (_editorMode === 'view' || !cursorInRange(state, from, to))) {
             const mr = emphasisMarks(node)
             if (mr.length >= 2) {
               const [open, close] = [mr[0], mr[mr.length - 1]]
@@ -335,7 +355,7 @@ function buildDecorations(view) {
 
         // ── Italic ───────────────────────────────────────────────────────────
         if (name === "Emphasis") {
-          if (!cursorInRange(state, from, to)) {
+          if (_editorMode !== 'source' && (_editorMode === 'view' || !cursorInRange(state, from, to))) {
             const mr = emphasisMarks(node)
             if (mr.length >= 2) {
               const [open, close] = [mr[0], mr[mr.length - 1]]
@@ -370,7 +390,7 @@ function buildDecorations(view) {
 
         // ── Link [text](url) ─────────────────────────────────────────────────
         if (name === "Link") {
-          if (!cursorInRange(state, from, to)) {
+          if (_editorMode !== 'source' && (_editorMode === 'view' || !cursorInRange(state, from, to))) {
             const raw = state.doc.sliceString(from, to)
             const closeIdx = raw.indexOf("](")
             if (closeIdx > 0) {
@@ -406,6 +426,7 @@ function buildDecorations(view) {
                 }
               } else if (grandparentName === "OrderedList") {
                 addLine(from, "lp-ordered-line")
+                addWidget(from, to + 1, new OrderedWidget(state.doc.sliceString(from, to)))
               }
             }
           }
@@ -415,7 +436,7 @@ function buildDecorations(view) {
         // TaskMarker is handled inside the ListMark branch above
 
         // ── GFM Table ────────────────────────────────────────────────────────
-        if (name === "Table") {
+        if (name === "Table" && _editorMode !== 'source') {
           try {
             const firstLine = state.doc.lineAt(from)
             // Don't trust lezer's `to` — scan lines explicitly.
@@ -553,7 +574,9 @@ const livePreviewPlugin = ViewPlugin.fromClass(
   class {
     constructor(view) { this.decorations = buildDecorations(view) }
     update(u) {
-      if (u.docChanged || u.selectionSet) this.decorations = buildDecorations(u.view)
+      if (u.docChanged || u.selectionSet || u.transactions.some(tr => tr.effects.some(e => e.is(modeChangeEffect)))) {
+        this.decorations = buildDecorations(u.view)
+      }
     }
   },
   { decorations: v => v.decorations },
@@ -601,22 +624,40 @@ const interactionHandlers = EditorView.domEventHandlers({
       if (pos != null) {
         const tree = syntaxTree(view.state)
         let url = null
-        // Resolve the node at click position and walk up to find Link
         let cur = tree.resolve(pos, 1)
         while (cur && cur.name !== "Document") {
           if (cur.name === "Link") {
-            if (!cursorInRange(view.state, cur.from, cur.to)) {
-              const raw = view.state.doc.sliceString(cur.from, cur.to)
-              const closeIdx = raw.indexOf("](")
-              if (closeIdx > 0) url = raw.slice(closeIdx + 2, -1)
-            }
+            const raw = view.state.doc.sliceString(cur.from, cur.to)
+            const closeIdx = raw.indexOf("](")
+            if (closeIdx > 0) url = raw.slice(closeIdx + 2, -1)
             break
           }
           cur = cur.parent
         }
         if (url) {
+          event.preventDefault()  // don't move cursor → source stays hidden
           openURL(url)
-          // Don't preventDefault — cursor still moves to the link (showing raw for editing)
+          return true
+        }
+      }
+    }
+
+    // ── Link boundary click → snap cursor to end of full [text](url) ───────
+    // When clicking in the hidden [ or ](url) area, the decoration removal
+    // causes a layout shift that auto-selects the revealed text. Intercept
+    // it and place the cursor cleanly at link.to instead.
+    {
+      const pos = view.posAtCoords({ x: event.clientX, y: event.clientY }, false)
+      if (pos != null) {
+        const tree = syntaxTree(view.state)
+        let node = tree.resolve(pos, 1)
+        while (node && node.name !== "Document") {
+          if (node.name === "Link" && !cursorInRange(view.state, node.from, node.to)) {
+            event.preventDefault()
+            view.dispatch({ selection: { anchor: node.to } })
+            return true
+          }
+          node = node.parent
         }
       }
     }
@@ -635,12 +676,8 @@ const editorTheme = EditorView.baseTheme({
     lineHeight: "1.75",
     overflow: "auto",
   },
-  ".cm-content": { padding: "18px 22px", minHeight: "100%", caretColor: "auto" },
+  ".cm-content": { padding: "18px 22px", minHeight: "100%" },
   ".cm-line":    { padding: "1px 0" },
-  // Thin selection indicator for empty lines (native selection skips them)
-  ".lp-empty-in-sel": {
-    background: "linear-gradient(to right, rgba(100,130,210,0.35) 0, rgba(100,130,210,0.35) 0.5em, transparent 0.5em)",
-  },
   ".cm-cursor":  { borderLeftWidth: "2px" },
   ".cm-focused": { outline: "none" },
 
@@ -672,16 +709,23 @@ const editorTheme = EditorView.baseTheme({
     cursor: "pointer",
   },
   ".lp-bullet": {
-    display: "inline",
+    display: "inline-block",
+    width: "1.5em",
+    marginInlineStart: "-1.5em",
     userSelect: "none",
   },
   ".lp-bullet-line": {
     paddingLeft: "1.5em",
-    textIndent: "-1.5em",
   },
   ".lp-ordered-line": {
     paddingLeft: "1.5em",
-    textIndent: "-1.5em",
+  },
+  ".lp-ordered-mark": {
+    display: "inline-block",
+    width: "1.5em",
+    marginInlineStart: "-1.5em",
+    color: "var(--mn-num-color)",
+    userSelect: "none",
   },
   ".lp-checkbox": {
     display: "inline-block",
@@ -761,8 +805,10 @@ function buildExtensions() {
     keymap.of([...defaultKeymap, ...historyKeymap]),
     markdown({ base: markdownLanguage, codeLanguages: languages }),
     highlightCompartment.of(currentHighlightExt()),
+    readOnlyCompartment.of(EditorState.readOnly.of(false)),
+    editableCompartment.of(EditorView.editable.of(true)),
     EditorView.lineWrapping,
-    emptyLineSelectionPlugin,
+    drawSelection(),
     livePreviewPlugin,
     interactionHandlers,
     editorTheme,
@@ -806,6 +852,19 @@ window.setInitialContent = function (content) {
 
 window.suspendEditor = function () {
   if (_view) { _view.destroy(); _view = null }
+}
+
+window.setEditorMode = function (mode) {
+  if (!_view) return
+  _editorMode = mode
+  const isView = mode === 'view'
+  _view.dispatch({
+    effects: [
+      readOnlyCompartment.reconfigure(EditorState.readOnly.of(isView)),
+      editableCompartment.reconfigure(EditorView.editable.of(!isView)),
+      modeChangeEffect.of(null),
+    ],
+  })
 }
 
 window.resumeEditor = function (content) {

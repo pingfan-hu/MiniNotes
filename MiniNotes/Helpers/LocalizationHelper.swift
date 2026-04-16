@@ -1,10 +1,11 @@
 import Foundation
 
 extension Notification.Name {
-    static let miniNotesTogglePin    = Notification.Name("MiniNotesTogglePin")
-    static let miniNotesClosePopover = Notification.Name("MiniNotesClosePopover")
-    static let miniNotesOpenSettings  = Notification.Name("MiniNotesOpenSettings")
-    static let miniNotesLanguageChanged = Notification.Name("MiniNotesLanguageChanged")
+    static let miniNotesTogglePin        = Notification.Name("MiniNotesTogglePin")
+    static let miniNotesClosePopover     = Notification.Name("MiniNotesClosePopover")
+    static let miniNotesOpenSettings     = Notification.Name("MiniNotesOpenSettings")
+    static let miniNotesLanguageChanged  = Notification.Name("MiniNotesLanguageChanged")
+    static let miniNotesEditorModeChanged = Notification.Name("MiniNotesEditorModeChanged")
 }
 
 enum L {
@@ -18,7 +19,10 @@ enum L {
     }
 
     // Toolbar
-    static var buttonOpenInObsidian: String { isChinese ? "在Obsidian中打开" : "Open in Obsidian" }
+    static var buttonOpenInObsidian:      String { isChinese ? "在Obsidian中打开" : "Open in Obsidian" }
+    static var modeSourceTooltip:         String { isChinese ? "源码模式" : "Source mode" }
+    static var modeEditTooltip:           String { isChinese ? "编辑模式" : "Edit mode" }
+    static var modeViewTooltip:           String { isChinese ? "预览模式" : "View mode" }
     static var autoSaved: String { isChinese ? "已保存" : "Auto-saved" }
     static var pinTooltipPin: String { isChinese ? "固定窗口" : "Keep window open" }
     static var pinTooltipUnpin: String { isChinese ? "取消固定" : "Auto-hide window" }

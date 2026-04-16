@@ -55,6 +55,7 @@ struct MarkdownEditorView: NSViewRepresentable {
         weak var webView: WKWebView?
         var notesStore: NotesStore?
         private var observers: [NSObjectProtocol] = []
+        private var currentMode: EditorMode = .edit
 
         deinit {
             observers.forEach { NotificationCenter.default.removeObserver($0) }
@@ -90,6 +91,19 @@ struct MarkdownEditorView: NSViewRepresentable {
                     self?.resumeEditorInWebView()
                 }
             )
+            observers.append(
+                NotificationCenter.default.addObserver(
+                    forName: .miniNotesEditorModeChanged,
+                    object: nil,
+                    queue: .main
+                ) { [weak self] notification in
+                    guard let self,
+                          let raw = notification.object as? String,
+                          let mode = EditorMode(rawValue: raw) else { return }
+                    self.currentMode = mode
+                    self.applyEditorMode(mode)
+                }
+            )
         }
 
         private func resumeEditorInWebView() {
@@ -98,8 +112,14 @@ struct MarkdownEditorView: NSViewRepresentable {
                 let jsonData = try JSONEncoder().encode(notesStore.content)
                 if let jsonString = String(data: jsonData, encoding: .utf8) {
                     webView.evaluateJavaScript("resumeEditor(\(jsonString))", completionHandler: nil)
+                    // Restore current mode after the view is (re)created
+                    applyEditorMode(currentMode)
                 }
             } catch {}
+        }
+
+        private func applyEditorMode(_ mode: EditorMode) {
+            webView?.evaluateJavaScript("setEditorMode('\(mode.rawValue)')", completionHandler: nil)
         }
 
         // MARK: WKScriptMessageHandler
@@ -116,6 +136,7 @@ struct MarkdownEditorView: NSViewRepresentable {
                 guard let urlString = message.body as? String,
                       let url = URL(string: urlString) else { return }
                 NSWorkspace.shared.open(url)
+                NotificationCenter.default.post(name: .miniNotesClosePopover, object: nil)
             default:
                 break
             }

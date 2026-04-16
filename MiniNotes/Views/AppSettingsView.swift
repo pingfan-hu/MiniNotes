@@ -135,8 +135,6 @@ private struct AboutPane: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Spacer()
-
             Text("MiniNotes")
                 .font(Font.custom("LXGWWenKai-Medium", size: 36))
                 .padding(.bottom, 8)
@@ -188,8 +186,8 @@ private struct AboutPane: View {
                 hovering ? NSCursor.pointingHand.push() : NSCursor.pop()
             }
 
-            Spacer()
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .padding(.top, 32)
     }
 }
