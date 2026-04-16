@@ -18,15 +18,16 @@
           <li>List indentation: bullet points and numbered lists now use a clean two-level layout — markers align with body text, list content indented to the right.</li>
           <li>Select All (Cmd+A) now highlights only actual text characters, not empty lines or blank space.</li>
           <li>About tab: content is now top-aligned.</li>
+          <li>View mode icon changed from eye to book.</li>
         </ul>
       ]]></description>
       <pubDate>Thu, 16 Apr 2026 21:23:21 +0000</pubDate>
       <enclosure
         url="https://github.com/pingfan-hu/MiniNotes/releases/download/v0.2.0/MiniNotes-v0.2.0.dmg"
-        sparkle:edSignature="3pTJC3wlPi47UYak/3HSQrZh3Ra0yq44Tdhx0t9gIUNHGwS9P5RKpHxPF0pKz3p5ORL444vnD2SpVpcjFfYkDw=="
+        sparkle:edSignature="3lGYAlpPX9SrOtu9FtMqpJl4Q6KAt9F2PeH5A9rVHjMhEpN1oqrfHA8y7ApI6+3c6zAHTcWRy0PQJVo99PZNAQ=="
         sparkle:version="0.2.0"
         sparkle:shortVersionString="0.2.0"
-        length="3430285"
+        length="3067130"
         type="application/x-apple-diskimage"
       />
     </item>
