@@ -12,6 +12,7 @@
 		2B14A904CFF6CC30E804434D /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FC82E353746CED7D6CA3EC9 /* ContentView.swift */; };
 		3E68328B1CFD1EEBC8FEFAB5 /* LocalizationHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7398D015F8C47F0F6F125DF0 /* LocalizationHelper.swift */; };
 		6C5E7EEDCBE435D06F512BC4 /* MarkdownEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A4967B3A2337443E1F3CFB9 /* MarkdownEditorView.swift */; };
+		73853D73183B592E5AC4307B /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 822747ECDF31DC0FF2953524 /* AppSettings.swift */; };
 		7B33B25CE9C78A7072364FD4 /* editor.html in Resources */ = {isa = PBXBuildFile; fileRef = 10EC6C1F0E029E2712046485 /* editor.html */; };
 		8BB6783892280E78AABB41D7 /* marked.min.js in Resources */ = {isa = PBXBuildFile; fileRef = 826CEF8FC6010268C63E1895 /* marked.min.js */; };
 		BA2E720DC486D0B454520638 /* NotesStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1318AA66AC13FCF99D02E7AA /* NotesStore.swift */; };
@@ -20,6 +21,7 @@
 		DFF32408141A3AD3680A2251 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1F54744E9B1E04A7FA83CE34 /* Assets.xcassets */; };
 		E46425D8099702DC0330884B /* editor-bundle.js in Resources */ = {isa = PBXBuildFile; fileRef = 5773EA048BC37CB2433B71BD /* editor-bundle.js */; };
 		EA1019687EEFE9E4C158AF4D /* MiniNotesApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 361C46AC0D57AE6C9FE95766 /* MiniNotesApp.swift */; };
+		ECC32E6625CB8A9D0D236846 /* AppSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90DB8675944E85B73049473E /* AppSettingsView.swift */; };
 		F830587420CDF9285CC58E22 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F52E9A0B2BC2AD6B03146D /* AppDelegate.swift */; };
 /* End PBXBuildFile section */
 
@@ -34,8 +36,10 @@
 		7398D015F8C47F0F6F125DF0 /* LocalizationHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizationHelper.swift; sourceTree = "<group>"; };
 		7A4967B3A2337443E1F3CFB9 /* MarkdownEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownEditorView.swift; sourceTree = "<group>"; };
 		7BB76C72A29854BA9C9A3C39 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		822747ECDF31DC0FF2953524 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
 		826CEF8FC6010268C63E1895 /* marked.min.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = marked.min.js; sourceTree = "<group>"; };
 		8FC82E353746CED7D6CA3EC9 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		90DB8675944E85B73049473E /* AppSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettingsView.swift; sourceTree = "<group>"; };
 		C6A35D58F231B0390F5C595B /* LandingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LandingView.swift; sourceTree = "<group>"; };
 		C89DB077C3F292BA098D5603 /* MiniNotes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MiniNotes.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EAE972A773706F561A1133BD /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
@@ -72,6 +76,7 @@
 		28ED7D318E1E72D980A4906E /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				90DB8675944E85B73049473E /* AppSettingsView.swift */,
 				8FC82E353746CED7D6CA3EC9 /* ContentView.swift */,
 				C6A35D58F231B0390F5C595B /* LandingView.swift */,
 				7A4967B3A2337443E1F3CFB9 /* MarkdownEditorView.swift */,
@@ -133,6 +138,7 @@
 		CFFCB2271FD79E9AAD65C8D3 /* Store */ = {
 			isa = PBXGroup;
 			children = (
+				822747ECDF31DC0FF2953524 /* AppSettings.swift */,
 				1318AA66AC13FCF99D02E7AA /* NotesStore.swift */,
 			);
 			path = Store;
@@ -217,6 +223,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				F830587420CDF9285CC58E22 /* AppDelegate.swift in Sources */,
+				73853D73183B592E5AC4307B /* AppSettings.swift in Sources */,
+				ECC32E6625CB8A9D0D236846 /* AppSettingsView.swift in Sources */,
 				2B14A904CFF6CC30E804434D /* ContentView.swift in Sources */,
 				2764AF53725D33590F9D5915 /* LandingView.swift in Sources */,
 				3E68328B1CFD1EEBC8FEFAB5 /* LocalizationHelper.swift in Sources */,

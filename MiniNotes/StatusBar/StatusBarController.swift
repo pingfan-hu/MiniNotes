@@ -1,4 +1,5 @@
 import AppKit
+import Sparkle
 import SwiftUI
 
 class StatusBarController {
@@ -7,8 +8,10 @@ class StatusBarController {
     private let notesStore = NotesStore()
     private var eventMonitor: EventMonitor?
     private var isPinned = false
+    private weak var updaterController: SPUStandardUpdaterController?
 
-    init() {
+    init(updaterController: SPUStandardUpdaterController?) {
+        self.updaterController = updaterController
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         popover = NSPopover()
         popover.behavior = .applicationDefined
@@ -47,6 +50,10 @@ class StatusBarController {
         )
     }
 
+    @objc private func openSettings() {
+        NotificationCenter.default.post(name: .miniNotesOpenSettings, object: nil)
+    }
+
     @objc private func handleForceClose() {
         closePopover()
     }
@@ -63,6 +70,7 @@ class StatusBarController {
     @objc private func handleClick(_ sender: NSStatusBarButton) {
         guard let event = NSApp.currentEvent else { return }
         if event.type == .rightMouseUp {
+            if popover.isShown { closePopover() }
             showContextMenu()
         } else {
             if popover.isShown { closePopover() } else { openPopover() }
@@ -71,6 +79,30 @@ class StatusBarController {
 
     private func showContextMenu() {
         let menu = NSMenu()
+
+        let settingsItem = NSMenuItem(
+            title: L.settings,
+            action: #selector(openSettings),
+            keyEquivalent: ","
+        )
+        settingsItem.keyEquivalentModifierMask = .command
+        settingsItem.image = NSImage(systemSymbolName: "gearshape", accessibilityDescription: nil)
+        settingsItem.target = self
+        menu.addItem(settingsItem)
+
+        menu.addItem(.separator())
+
+        let updateItem = NSMenuItem(
+            title: L.checkForUpdates,
+            action: #selector(SPUStandardUpdaterController.checkForUpdates(_:)),
+            keyEquivalent: ""
+        )
+        updateItem.target = updaterController
+        updateItem.image = NSImage(systemSymbolName: "arrow.trianglehead.2.clockwise", accessibilityDescription: nil)
+        menu.addItem(updateItem)
+
+        menu.addItem(.separator())
+
         let quitItem = NSMenuItem(
             title: "Quit MiniNotes",
             action: #selector(NSApplication.terminate(_:)),
@@ -79,6 +111,7 @@ class StatusBarController {
         quitItem.keyEquivalentModifierMask = .command
         quitItem.image = NSImage(systemSymbolName: "xmark.square", accessibilityDescription: nil)
         menu.addItem(quitItem)
+
         statusItem.menu = menu
         statusItem.button?.performClick(nil)
         statusItem.menu = nil

@@ -3,6 +3,7 @@ import AppKit
 
 struct ContentView: View {
     @EnvironmentObject var notesStore: NotesStore
+    @ObservedObject private var settings = AppSettings.shared
     @State private var showingSettings = false
     @State private var isPinned = false
 

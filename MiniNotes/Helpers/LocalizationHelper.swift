@@ -1,13 +1,20 @@
 import Foundation
 
 extension Notification.Name {
-    static let miniNotesTogglePin = Notification.Name("MiniNotesTogglePin")
+    static let miniNotesTogglePin    = Notification.Name("MiniNotesTogglePin")
     static let miniNotesClosePopover = Notification.Name("MiniNotesClosePopover")
+    static let miniNotesOpenSettings  = Notification.Name("MiniNotesOpenSettings")
+    static let miniNotesLanguageChanged = Notification.Name("MiniNotesLanguageChanged")
 }
 
 enum L {
-    private static var isChinese: Bool {
-        Locale.preferredLanguages.first?.hasPrefix("zh") ?? false
+    static var isChinese: Bool {
+        let setting = UserDefaults.standard.string(forKey: "appLanguage") ?? "system"
+        switch setting {
+        case "chinese": return true
+        case "english": return false
+        default:        return Locale.preferredLanguages.first?.hasPrefix("zh") ?? false
+        }
     }
 
     // Toolbar
@@ -22,7 +29,23 @@ enum L {
         isChinese ? "重新打开 \(name)" : "Reopen \"\(name)\""
     }
 
-    // Settings
+    // Context menu
+    static var settings: String        { isChinese ? "设置..." : "Settings..." }
+    static var checkForUpdates: String { isChinese ? "检查更新..." : "Check for Updates..." }
+
+    // App settings window
+    static var appSettingsTitle:    String { isChinese ? "应用设置" : "App Settings" }
+    static var generalTab:          String { isChinese ? "基本设置" : "General" }
+    static var aboutTab:            String { isChinese ? "关于" : "About" }
+    static var languageLabel:       String { isChinese ? "语言" : "Language" }
+    static var launchAtLogin:       String { isChinese ? "开机时自动启动" : "Launch at Login" }
+    static var languageSystem:      String { isChinese ? "跟随系统" : "Follow System" }
+    static var aboutDescription:    String { isChinese ? "免费且开源的 macOS 菜单栏 Markdown 编辑器。" : "A free and open-source macOS menu bar Markdown editor." }
+    static var aboutMadeBy:         String { isChinese ? "由" : "Made by" }
+    static var aboutMadeByAfter:    String { isChinese ? "制作。" : "." }
+    static var aboutVersion:        String { isChinese ? "版本" : "Version" }
+
+    // File location settings (toolbar sheet)
     static var settingsTitle: String { isChinese ? "文件位置" : "File Location" }
     static var settingsCurrentFile: String { isChinese ? "当前文件" : "Current file" }
     static var settingsOpenExisting: String { isChinese ? "打开已有文件..." : "Open Existing File..." }

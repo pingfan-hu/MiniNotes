@@ -1,23 +1,22 @@
 #!/bin/bash
-# Rebuild MiniNotes and relaunch after file edits.
-# Reads Claude Code PostToolUse JSON from stdin and only acts on .swift / editor.js files.
+# Stop hook: runs once when Claude finishes responding.
+# Builds only if Swift or JS files were marked dirty this turn.
 
-INPUT=$(cat)
-FILE=$(echo "$INPUT" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('tool_input',{}).get('file_path',''))" 2>/dev/null)
+DIRTY_FILE="/tmp/mininotes-dirty-files"
 
-# Only rebuild for Swift source files or the JS editor source
-case "$FILE" in
-  *.swift|*/build/src/editor.js) ;;
-  *) exit 0 ;;
-esac
+if [ ! -f "$DIRTY_FILE" ]; then
+  exit 0
+fi
+
+CHANGED=$(cat "$DIRTY_FILE")
+rm -f "$DIRTY_FILE"
 
 PROJECT_DIR="/Users/pingfan/Documents/GitHub/software/MiniNotes"
 APP_PATH="/Users/pingfan/Library/Developer/Xcode/DerivedData/MiniNotes-dqmwdyrthfgyezeddoegrwdqawje/Build/Products/Debug/MiniNotes.app"
 
-echo "==> Building MiniNotes (changed: $FILE)..."
+echo "==> Building MiniNotes..."
 
-# If the changed file is editor.js, also bundle it first
-if [[ "$FILE" == */build/src/editor.js ]]; then
+if echo "$CHANGED" | grep -q "editor.js"; then
   cd "$PROJECT_DIR/build" && npm run build --silent
 fi
 

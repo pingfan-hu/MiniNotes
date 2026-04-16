@@ -68,13 +68,34 @@
       "Bash(/tmp/sparkle-tools/bin/sign_update:*)",
       "Bash(xcodebuild -project MiniNotes.xcodeproj -scheme MiniNotes -configuration Debug -resolvePackageDependencies)",
       "Bash(xcodebuild -project MiniNotes.xcodeproj -scheme MiniNotes -configuration Release build)",
-      "Skill(update-config)"
+      "Skill(update-config)",
+      "Bash(convert --version)",
+      "Bash(pip3 install:*)",
+      "Bash(/tmp/dmg-venv/bin/pip install:*)",
+      "Bash(cat /Users/pingfan/Documents/GitHub/software/MiniNotes/dist/*.json)",
+      "Bash(/tmp/dmg-venv/bin/python3 /tmp/gen_dmg_bg.py)",
+      "Bash(curl -s \"https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png\" -o /tmp/github-mark.png)",
+      "Bash(sips -z 110 110 /tmp/github-mark.png --out /tmp/github-logo@2x.png)",
+      "Bash(sips -z 55 55 /tmp/github-mark.png --out /tmp/github-logo@1x.png)",
+      "Bash(grep -v \"^$\")",
+      "Bash(sudo xcodebuild:*)",
+      "mcp__ide__getDiagnostics"
     ]
   },
   "hooks": {
     "PostToolUse": [
       {
         "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/pingfan/Documents/GitHub/software/MiniNotes/scripts/mark-dirty.sh"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
         "hooks": [
           {
             "type": "command",
