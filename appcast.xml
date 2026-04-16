@@ -8,6 +8,31 @@
 
     <!-- Latest release -->
     <item>
+      <title>Version 0.2.0</title>
+      <link>https://github.com/pingfan-hu/MiniNotes/releases/tag/v0.2.0</link>
+      <sparkle:version>0.2.0</sparkle:version>
+      <sparkle:shortVersionString>0.2.0</sparkle:shortVersionString>
+      <description><![CDATA[
+        <h2>What's New</h2>
+        <ul>
+          <li>List indentation: bullet points and numbered lists now use a clean two-level layout — markers align with body text, list content indented to the right.</li>
+          <li>Select All (Cmd+A) now highlights only actual text characters, not empty lines or blank space.</li>
+          <li>About tab: content is now top-aligned.</li>
+        </ul>
+      ]]></description>
+      <pubDate>Thu, 16 Apr 2026 21:23:21 +0000</pubDate>
+      <enclosure
+        url="https://github.com/pingfan-hu/MiniNotes/releases/download/v0.2.0/MiniNotes-v0.2.0.dmg"
+        sparkle:edSignature="3pTJC3wlPi47UYak/3HSQrZh3Ra0yq44Tdhx0t9gIUNHGwS9P5RKpHxPF0pKz3p5ORL444vnD2SpVpcjFfYkDw=="
+        sparkle:version="0.2.0"
+        sparkle:shortVersionString="0.2.0"
+        length="3430285"
+        type="application/x-apple-diskimage"
+      />
+    </item>
+
+    <!-- Previous release -->
+    <item>
       <title>Version 0.1.2</title>
       <link>https://github.com/pingfan-hu/MiniNotes/releases/tag/v0.1.2</link>
       <sparkle:version>0.1.2</sparkle:version>
