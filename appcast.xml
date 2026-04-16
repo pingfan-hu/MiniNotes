@@ -8,6 +8,33 @@
 
     <!-- Latest release -->
     <item>
+      <title>Version 0.1.2</title>
+      <link>https://github.com/pingfan-hu/MiniNotes/releases/tag/v0.1.2</link>
+      <sparkle:version>0.1.2</sparkle:version>
+      <sparkle:shortVersionString>0.1.2</sparkle:shortVersionString>
+      <description><![CDATA[
+        <h2>What's New</h2>
+        <ul>
+          <li>Added App Settings panel (right-click → Settings) with General and About tabs.</li>
+          <li>General tab: language selector (Follow System / 简中 / English) and Launch at Login toggle.</li>
+          <li>About tab: app description, author link, version, and GitHub link with hover effects.</li>
+          <li>Settings panel fully localised — switches between Chinese and English in real time.</li>
+          <li>Right-click menu now closes the popover before showing.</li>
+        </ul>
+      ]]></description>
+      <pubDate>Tue, 15 Apr 2026 00:00:00 +0000</pubDate>
+      <enclosure
+        url="https://github.com/pingfan-hu/MiniNotes/releases/download/v0.1.2/MiniNotes-v0.1.2.dmg"
+        sparkle:edSignature="z1B4qbBRqWad5B2qB7jZtjzSZL+j64umjq2HLqWcCP0RlasG0UbsVoiNPql3OHV30+obMy1PnCqKlPBeFmkLCg=="
+        sparkle:version="0.1.2"
+        sparkle:shortVersionString="0.1.2"
+        length="3407778"
+        type="application/x-apple-diskimage"
+      />
+    </item>
+
+    <!-- Previous release -->
+    <item>
       <title>Version 0.1.1</title>
       <link>https://github.com/pingfan-hu/MiniNotes/releases/tag/v0.1.1</link>
       <sparkle:version>0.1.1</sparkle:version>

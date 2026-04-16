@@ -21,8 +21,8 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.pingfan.MiniNotes
-        MARKETING_VERSION: "0.1.1"
-        CURRENT_PROJECT_VERSION: "0.1.1"
+        MARKETING_VERSION: "0.1.2"
+        CURRENT_PROJECT_VERSION: "0.1.2"
         SWIFT_VERSION: "5.9"
         MACOSX_DEPLOYMENT_TARGET: "13.0"
         CODE_SIGN_STYLE: Automatic
@@ -39,4 +39,4 @@ targets:
         LSUIElement: YES
         NSPrincipalClass: NSApplication
         SUFeedURL: "https://raw.githubusercontent.com/pingfan-hu/MiniNotes/main/appcast.xml"
-        SUPublicEDKey: "6mtHULKo0D4PNvOV9HwEOzuX1lFUVPaQRt9Yn/V2mnI="
+        SUPublicEDKey: "opaYYNjjYgCQJ7jkDvI/eBoF3lfZJ5+qwaMFT20VE+k="
