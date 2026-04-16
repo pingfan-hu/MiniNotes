@@ -86,7 +86,12 @@
       "Bash(rm -rf dist/dmg-temp dist/MiniNotes-v0.1.2.*)",
       "Bash(cp -R ~/Library/Developer/Xcode/DerivedData/MiniNotes-dqmwdyrthfgyezeddoegrwdqawje/Build/Products/Release/MiniNotes.app dist/dmg-temp/)",
       "Bash(rm:*)",
-      "Bash(ditto -c -k --sequesterRsrc --keepParent ~/Library/Developer/Xcode/DerivedData/MiniNotes-dqmwdyrthfgyezeddoegrwdqawje/Build/Products/Release/MiniNotes.app dist/MiniNotes-v0.1.2.zip)"
+      "Bash(ditto -c -k --sequesterRsrc --keepParent ~/Library/Developer/Xcode/DerivedData/MiniNotes-dqmwdyrthfgyezeddoegrwdqawje/Build/Products/Release/MiniNotes.app dist/MiniNotes-v0.1.2.zip)",
+      "Bash(/Users/pingfan/Library/Developer/Xcode/DerivedData/MiniNotes-dqmwdyrthfgyezeddoegrwdqawje/SourcePackages/artifacts/sparkle/Sparkle/bin/sign_update:*)",
+      "Bash(security find-generic-password:*)",
+      "Bash(/Users/pingfan/Library/Developer/Xcode/DerivedData/MiniNotes-dqmwdyrthfgyezeddoegrwdqawje/SourcePackages/artifacts/sparkle/Sparkle/bin/generate_keys -x /tmp/sparkle_private_key.txt)",
+      "Bash(/Users/pingfan/Library/Developer/Xcode/DerivedData/MiniNotes-dqmwdyrthfgyezeddoegrwdqawje/SourcePackages/artifacts/sparkle/Sparkle/bin/generate_keys -p)",
+      "Bash(/Users/pingfan/Library/Developer/Xcode/DerivedData/MiniNotes-dqmwdyrthfgyezeddoegrwdqawje/SourcePackages/artifacts/sparkle/Sparkle/bin/generate_keys --print-public-key)"
     ]
   },
   "hooks": {
