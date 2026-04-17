@@ -96,7 +96,12 @@
       "Bash(sips:*)",
       "Bash(find:*)",
       "Bash(./scripts/create-dmg.sh:*)",
-      "Bash(./scripts/rebuild-and-relaunch.sh)"
+      "Bash(./scripts/rebuild-and-relaunch.sh)",
+      "Bash(gh auth:*)",
+      "Bash(sed -i '' 's/MARKETING_VERSION = [0-9.]*;/MARKETING_VERSION = 0.2.0;/g' MiniNotes.xcodeproj/project.pbxproj)",
+      "Bash(sed -i '' 's/CURRENT_PROJECT_VERSION = [0-9.]*;/CURRENT_PROJECT_VERSION = 0.2.0;/g' MiniNotes.xcodeproj/project.pbxproj)",
+      "Bash(~/Library/Developer/Xcode/DerivedData/MiniNotes-dqmwdyrthfgyezeddoegrwdqawje/SourcePackages/artifacts/sparkle/Sparkle/bin/sign_update:*)",
+      "Bash(ditto -c -k --sequesterRsrc --keepParent '~/Library/Developer/Xcode/DerivedData/MiniNotes-dqmwdyrthfgyezeddoegrwdqawje/Build/Products/Release/MiniNotes.app' /Users/pingfan/Documents/GitHub/software/MiniNotes/dist/MiniNotes-v0.2.0.zip)"
     ]
   },
   "hooks": {
