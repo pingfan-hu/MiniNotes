@@ -42,10 +42,43 @@ class AppSettings: ObservableObject {
         }
     }
 
+    @Published var hotkeyKeyCode: UInt32 {
+        didSet {
+            UserDefaults.standard.set(Int(hotkeyKeyCode), forKey: "hotkeyKeyCode")
+            HotkeyManager.shared.register(keyCode: hotkeyKeyCode, carbonModifiers: hotkeyCarbonModifiers)
+        }
+    }
+
+    @Published var hotkeyCarbonModifiers: UInt32 {
+        didSet {
+            UserDefaults.standard.set(Int(hotkeyCarbonModifiers), forKey: "hotkeyCarbonModifiers")
+            HotkeyManager.shared.register(keyCode: hotkeyKeyCode, carbonModifiers: hotkeyCarbonModifiers)
+        }
+    }
+
+    var hotkeyDisplayString: String {
+        HotkeyManager.displayString(keyCode: hotkeyKeyCode, carbonModifiers: hotkeyCarbonModifiers)
+    }
+
+    func resetHotkey() {
+        hotkeyKeyCode = HotkeyManager.defaultKeyCode
+        hotkeyCarbonModifiers = HotkeyManager.defaultCarbonModifiers
+    }
+
     private init() {
         let rawLanguage = UserDefaults.standard.string(forKey: "appLanguage") ?? "system"
         self.appLanguage = AppLanguage(rawValue: rawLanguage) ?? .system
         self.launchAtLogin = UserDefaults.standard.bool(forKey: "launchAtLogin")
+
+        let savedKeyCode = UserDefaults.standard.integer(forKey: "hotkeyKeyCode")
+        self.hotkeyKeyCode = savedKeyCode != 0
+            ? UInt32(savedKeyCode)
+            : HotkeyManager.defaultKeyCode
+
+        let savedMods = UserDefaults.standard.integer(forKey: "hotkeyCarbonModifiers")
+        self.hotkeyCarbonModifiers = savedMods != 0
+            ? UInt32(savedMods)
+            : HotkeyManager.defaultCarbonModifiers
     }
 
     private func applyLaunchAtLogin() {

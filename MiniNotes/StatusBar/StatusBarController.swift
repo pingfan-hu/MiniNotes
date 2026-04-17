@@ -48,6 +48,16 @@ class StatusBarController {
             name: .miniNotesClosePopover,
             object: nil
         )
+
+        let settings = AppSettings.shared
+        HotkeyManager.shared.onActivate = { [weak self] in
+            guard let self else { return }
+            if self.popover.isShown { self.closePopover() } else { self.openPopover() }
+        }
+        HotkeyManager.shared.register(
+            keyCode: settings.hotkeyKeyCode,
+            carbonModifiers: settings.hotkeyCarbonModifiers
+        )
     }
 
     @objc private func openSettings() {

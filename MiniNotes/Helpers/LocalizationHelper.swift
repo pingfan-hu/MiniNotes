@@ -49,6 +49,13 @@ enum L {
     static var aboutMadeByAfter:    String { isChinese ? "制作。" : "." }
     static var aboutVersion:        String { isChinese ? "版本" : "Version" }
 
+    // Hotkey settings
+    static var hotkeyLabel:     String { isChinese ? "快捷键" : "Hotkey" }
+    static var hotkeyRecord:    String { isChinese ? "录制" : "Record" }
+    static var hotkeyReset:     String { isChinese ? "恢复默认" : "Reset" }
+    static var hotkeyRecording: String { isChinese ? "按下快捷键…" : "Press shortcut…" }
+    static var hotkeyCancel:    String { isChinese ? "取消" : "Cancel" }
+
     // File location settings (toolbar sheet)
     static var settingsTitle: String { isChinese ? "文件位置" : "File Location" }
     static var settingsCurrentFile: String { isChinese ? "当前文件" : "Current file" }

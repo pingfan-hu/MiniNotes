@@ -1,4 +1,5 @@
 import AppKit
+import Carbon
 import SwiftUI
 
 // MARK: - Root
@@ -24,7 +25,7 @@ struct AppSettingsView: View {
             Divider()
             detail
         }
-        .frame(width: 625, height: 440)
+        .frame(width: 625, height: 480)
     }
 
     // MARK: Sidebar
@@ -79,20 +80,30 @@ struct AppSettingsView: View {
 
 // MARK: - General Pane
 
+// Reads the Picker's actual rendered width so the hotkey badge can match it exactly.
+private struct PickerWidthKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = max(value, nextValue())
+    }
+}
+
 private struct GeneralPane: View {
     @ObservedObject var settings: AppSettings
+    @State private var pickerWidth: CGFloat = 0
+    private let labelW: CGFloat = 92  // wide enough for "Language：" in English
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        VStack(alignment: .leading, spacing: 14) {
             Text(L.generalTab)
                 .font(Font.custom("LXGWWenKai-Medium", size: 17))
-                .padding(.horizontal, 24)
-                .padding(.top, 24)
-                .padding(.bottom, 20)
+                .padding(.bottom, 6)
 
-            HStack(spacing: 8) {
+            // Language
+            HStack(alignment: .center, spacing: 8) {
                 Text(L.languageLabel + "：")
                     .font(Font.custom("LXGWWenKai-Medium", size: 14))
+                    .frame(width: labelW, alignment: .trailing)
                 Picker("", selection: $settings.appLanguage) {
                     ForEach(AppLanguage.allCases) { lang in
                         Text(lang.displayName)
@@ -101,24 +112,137 @@ private struct GeneralPane: View {
                     }
                 }
                 .labelsHidden()
-                .frame(width: 160)
-                Spacer()
+                // Measure the picker's actual rendered width
+                .overlay(GeometryReader { geo in
+                    Color.clear.preference(key: PickerWidthKey.self, value: geo.size.width)
+                })
             }
-            .padding(.horizontal, 24)
-            .padding(.bottom, 14)
 
-            HStack(spacing: 10) {
+            // Hotkey
+            HStack(alignment: .center, spacing: 8) {
+                Text(L.hotkeyLabel + "：")
+                    .font(Font.custom("LXGWWenKai-Medium", size: 14))
+                    .frame(width: labelW, alignment: .trailing)
+                HotkeyControls(settings: settings, badgeWidth: pickerWidth)
+            }
+
+            // Launch at login
+            HStack(alignment: .center, spacing: 8) {
+                Color.clear.frame(width: labelW)
                 Toggle("", isOn: $settings.launchAtLogin)
                     .labelsHidden()
                     .toggleStyle(.checkbox)
                 Text(L.launchAtLogin)
                     .font(Font.custom("LXGWWenKai-Medium", size: 14))
+                    .fixedSize()
             }
-            .padding(.horizontal, 24)
-
-            Spacer()
         }
+        // fixedSize prevents SwiftUI from distributing the parent's extra height
+        // to flexible children (Text), which would push Launch at Login to the bottom
+        .fixedSize(horizontal: false, vertical: true)
+        .padding(.horizontal, 24)
+        .padding(.top, 24)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .onPreferenceChange(PickerWidthKey.self) { w in
+            if w > 0 { pickerWidth = w }
+        }
+    }
+}
+
+// MARK: - Hotkey Controls
+
+private struct HotkeyControls: View {
+    @ObservedObject var settings: AppSettings
+    let badgeWidth: CGFloat
+    @State private var isRecording = false
+    @State private var monitor: Any?
+    @State private var isHoveringBadge = false
+    @State private var isHoveringReset = false
+
+    private let badgeHeight: CGFloat = 28
+
+    var body: some View {
+        HStack(spacing: 8) {
+            // Badge — click to record; width matches the language picker exactly
+            Text(isRecording ? L.hotkeyRecording : settings.hotkeyDisplayString)
+                .font(isRecording
+                    ? Font.custom("LXGWWenKai-Medium", size: 14)
+                    : Font.custom("MapleMono-NF-CN-Regular", size: 15))
+                .foregroundColor(isRecording ? Color.accentColor : .primary)
+                .frame(width: badgeWidth > 0 ? badgeWidth : 140, height: badgeHeight, alignment: .center)
+                .background(
+                    RoundedRectangle(cornerRadius: 7)
+                        .strokeBorder(
+                            isRecording ? Color.accentColor : Color(NSColor.separatorColor),
+                            lineWidth: isRecording ? 1.5 : 1
+                        )
+                        .background(
+                            RoundedRectangle(cornerRadius: 7)
+                                .fill(isRecording
+                                    ? (isHoveringBadge
+                                        ? Color.accentColor.opacity(0.15)
+                                        : Color.accentColor.opacity(0.08))
+                                    : (isHoveringBadge
+                                        ? Color(NSColor.controlColor)
+                                        : Color(NSColor.controlColor).opacity(0.0)))
+                        )
+                )
+                .onTapGesture { isRecording ? stopRecording() : startRecording() }
+                .onHover { isHoveringBadge = $0 }
+
+            if isRecording {
+                Button { stopRecording() } label: {
+                    Text(L.hotkeyCancel)
+                        .font(Font.custom("LXGWWenKai-Medium", size: 13))
+                }
+                .controlSize(.small)
+            } else {
+                // Reset — icon with border
+                Button { settings.resetHotkey() } label: {
+                    Image(systemName: "arrow.counterclockwise")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(isHoveringReset ? .primary : .secondary)
+                        .frame(width: badgeHeight, height: badgeHeight)
+                        .background(
+                            RoundedRectangle(cornerRadius: 6)
+                                .strokeBorder(Color(NSColor.separatorColor), lineWidth: 1)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 6)
+                                        .fill(isHoveringReset
+                                            ? Color(NSColor.controlColor).opacity(0.85)
+                                            : Color(NSColor.controlColor))
+                                )
+                        )
+                }
+                .buttonStyle(.plain)
+                .onHover { isHoveringReset = $0 }
+                .help(L.hotkeyReset)
+            }
+        }
+    }
+
+    private func startRecording() {
+        isRecording = true
+        monitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
+            if Int(event.keyCode) == kVK_Escape {
+                self.stopRecording()
+                return nil
+            }
+            let keyCode = UInt32(event.keyCode)
+            let mods    = HotkeyManager.carbonModifiers(from: event.modifierFlags)
+            if mods != 0 {
+                // Assign separately to avoid double re-register from didSet
+                self.settings.hotkeyKeyCode = keyCode
+                self.settings.hotkeyCarbonModifiers = mods
+            }
+            self.stopRecording()
+            return nil
+        }
+    }
+
+    private func stopRecording() {
+        isRecording = false
+        if let m = monitor { NSEvent.removeMonitor(m); monitor = nil }
     }
 }
 

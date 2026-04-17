@@ -14,7 +14,9 @@
 		6C5E7EEDCBE435D06F512BC4 /* MarkdownEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A4967B3A2337443E1F3CFB9 /* MarkdownEditorView.swift */; };
 		73853D73183B592E5AC4307B /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 822747ECDF31DC0FF2953524 /* AppSettings.swift */; };
 		7B33B25CE9C78A7072364FD4 /* editor.html in Resources */ = {isa = PBXBuildFile; fileRef = 10EC6C1F0E029E2712046485 /* editor.html */; };
+		8A3F0F2AE1660751D82CB7C1 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CA7526D0B5BF6F52324BECD8 /* Carbon.framework */; };
 		8BB6783892280E78AABB41D7 /* marked.min.js in Resources */ = {isa = PBXBuildFile; fileRef = 826CEF8FC6010268C63E1895 /* marked.min.js */; };
+		A5EA96D11010BC70D73A23D2 /* HotkeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85D945319B53C45A8E095AF3 /* HotkeyManager.swift */; };
 		BA2E720DC486D0B454520638 /* NotesStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1318AA66AC13FCF99D02E7AA /* NotesStore.swift */; };
 		C61611B436D89D89CD584662 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = B46206482AA56575A23BC3ED /* Sparkle */; };
 		D3548113BBA7CEE1B5392460 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAE972A773706F561A1133BD /* SettingsView.swift */; };
@@ -38,10 +40,12 @@
 		7BB76C72A29854BA9C9A3C39 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		822747ECDF31DC0FF2953524 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
 		826CEF8FC6010268C63E1895 /* marked.min.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = marked.min.js; sourceTree = "<group>"; };
+		85D945319B53C45A8E095AF3 /* HotkeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyManager.swift; sourceTree = "<group>"; };
 		8FC82E353746CED7D6CA3EC9 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		90DB8675944E85B73049473E /* AppSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettingsView.swift; sourceTree = "<group>"; };
 		C6A35D58F231B0390F5C595B /* LandingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LandingView.swift; sourceTree = "<group>"; };
 		C89DB077C3F292BA098D5603 /* MiniNotes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MiniNotes.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		CA7526D0B5BF6F52324BECD8 /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = System/Library/Frameworks/Carbon.framework; sourceTree = SDKROOT; };
 		EAE972A773706F561A1133BD /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -51,6 +55,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C61611B436D89D89CD584662 /* Sparkle in Frameworks */,
+				8A3F0F2AE1660751D82CB7C1 /* Carbon.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -68,6 +73,7 @@
 		137EAA47DA21205D4761E146 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
+				85D945319B53C45A8E095AF3 /* HotkeyManager.swift */,
 				7398D015F8C47F0F6F125DF0 /* LocalizationHelper.swift */,
 			);
 			path = Helpers;
@@ -113,6 +119,7 @@
 			isa = PBXGroup;
 			children = (
 				54CCA5E995E74F9B92C7A5DB /* MiniNotes */,
+				C14FFA1C14F996FB8F005E0B /* Frameworks */,
 				02EEA06D36A81A92A5BDCDDF /* Products */,
 			);
 			sourceTree = "<group>";
@@ -125,6 +132,14 @@
 				826CEF8FC6010268C63E1895 /* marked.min.js */,
 			);
 			path = Resources;
+			sourceTree = "<group>";
+		};
+		C14FFA1C14F996FB8F005E0B /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				CA7526D0B5BF6F52324BECD8 /* Carbon.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 		C3F08C0EE8719159B9D19897 /* StatusBar */ = {
@@ -226,6 +241,7 @@
 				73853D73183B592E5AC4307B /* AppSettings.swift in Sources */,
 				ECC32E6625CB8A9D0D236846 /* AppSettingsView.swift in Sources */,
 				2B14A904CFF6CC30E804434D /* ContentView.swift in Sources */,
+				A5EA96D11010BC70D73A23D2 /* HotkeyManager.swift in Sources */,
 				2764AF53725D33590F9D5915 /* LandingView.swift in Sources */,
 				3E68328B1CFD1EEBC8FEFAB5 /* LocalizationHelper.swift in Sources */,
 				6C5E7EEDCBE435D06F512BC4 /* MarkdownEditorView.swift in Sources */,
@@ -302,7 +318,7 @@
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 0.2.0;
+				CURRENT_PROJECT_VERSION = 0.1.2;
 				ENABLE_HARDENED_RUNTIME = NO;
 				INFOPLIST_FILE = MiniNotes/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -310,7 +326,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
-				MARKETING_VERSION = 0.2.0;
+				MARKETING_VERSION = 0.1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.pingfan.MiniNotes;
 				SDKROOT = macosx;
 				SWIFT_VERSION = 5.9;
@@ -387,7 +403,7 @@
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 0.2.0;
+				CURRENT_PROJECT_VERSION = 0.1.2;
 				ENABLE_HARDENED_RUNTIME = NO;
 				INFOPLIST_FILE = MiniNotes/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -395,7 +411,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
-				MARKETING_VERSION = 0.2.0;
+				MARKETING_VERSION = 0.1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.pingfan.MiniNotes;
 				SDKROOT = macosx;
 				SWIFT_VERSION = 5.9;

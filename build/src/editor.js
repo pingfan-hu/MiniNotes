@@ -83,8 +83,8 @@ function currentHighlightExt() {
 ;(function() {
   const s = document.createElement("style")
   s.textContent = [
-    ":root{--mn-code-bg:rgba(128,128,128,0.08);--mn-inline-bg:rgba(128,128,128,0.15);--mn-num-color:#7c619a}",
-    "@media(prefers-color-scheme:dark){:root{--mn-code-bg:rgba(255,255,255,0.09);--mn-inline-bg:rgba(255,255,255,0.09);--mn-num-color:#a68bbf}}",
+    ":root{--mn-code-bg:rgba(128,128,128,0.08);--mn-inline-bg:rgba(128,128,128,0.15);--mn-num-color:#7c619a;--mn-bq-border:#9b72cf;--mn-bq-bg:rgba(155,114,207,0.07);--mn-bq-color:#6b3fa0}",
+    "@media(prefers-color-scheme:dark){:root{--mn-code-bg:rgba(255,255,255,0.09);--mn-inline-bg:rgba(255,255,255,0.09);--mn-num-color:#a68bbf;--mn-bq-border:#b08ee0;--mn-bq-bg:rgba(155,114,207,0.1);--mn-bq-color:#c4a8e8}}",
     /* Suppress drawSelection's full-width cm-selectionBackground divs; native ::selection is used instead */
     ".cm-editor .cm-selectionBackground{background:transparent!important}",
     /* Native ::selection — WebKit renders these tightly around text (not full-width), giving correct behavior */
@@ -277,6 +277,44 @@ class TableWidget extends WidgetType {
   }
 }
 
+function fallbackCopy(text) {
+  const ta = document.createElement("textarea")
+  ta.value = text
+  ta.style.cssText = "position:fixed;top:-9999px;left:-9999px"
+  document.body.appendChild(ta)
+  ta.select()
+  try { document.execCommand("copy") } catch (_) {}
+  document.body.removeChild(ta)
+}
+
+const COPY_ICON = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>`
+const CHECK_ICON = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`
+
+class CopyButtonWidget extends WidgetType {
+  constructor(codeText) { super(); this.codeText = codeText }
+  eq(o) { return this.codeText === o.codeText }
+  ignoreEvent() { return false }
+  toDOM() {
+    const btn = document.createElement("span")
+    btn.className = "lp-copy-btn"
+    btn.title = "Copy"
+    btn.innerHTML = COPY_ICON
+    btn.addEventListener("mousedown", e => {
+      e.preventDefault()
+      e.stopPropagation()
+      const text = this.codeText
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).catch(() => fallbackCopy(text))
+      } else {
+        fallbackCopy(text)
+      }
+      btn.innerHTML = CHECK_ICON
+      setTimeout(() => { btn.innerHTML = COPY_ICON }, 1500)
+    })
+    return btn
+  }
+}
+
 function selectAllInEl(el) {
   const r = document.createRange(); r.selectNodeContents(el)
   const s = window.getSelection(); s.removeAllRanges(); s.addRange(r)
@@ -382,9 +420,21 @@ function buildDecorations(view) {
             if (n < 1 || n > state.doc.lines) continue
             addLine(state.doc.line(n).from, "lp-fenced-line")
           }
+          addLine(startLine.from, "lp-fenced-first")
           addMark(startLine.from, startLine.to, "lp-syntax-dim")
           if (endLine.number !== startLine.number && endLine.from < endLine.to)
             addMark(endLine.from, endLine.to, "lp-syntax-dim")
+          // Copy button: extract code text between fence markers
+          const codeText = startLine.to + 1 < endLine.from
+            ? state.doc.sliceString(startLine.to + 1, endLine.from).replace(/\n$/, "")
+            : ""
+          if (startLine.to <= docLen) {
+            items.push({
+              from: startLine.to, to: startLine.to,
+              deco: Decoration.widget({ widget: new CopyButtonWidget(codeText), side: 1 }),
+              isLine: false, isAtomic: false,
+            })
+          }
           return false
         }
 
@@ -398,6 +448,19 @@ function buildDecorations(view) {
               addReplace(from + closeIdx, to)      // hide ](url)
               addMark(from + 1, from + closeIdx, "lp-link")
             }
+          }
+          return false
+        }
+
+        // ── Blockquote mark ──────────────────────────────────────────────────
+        if (name === "QuoteMark") {
+          const line = state.doc.lineAt(from)
+          addLine(line.from, "lp-blockquote")
+          if (_editorMode === 'source' || (_editorMode !== 'view' && cursorOnLine(state, line.from, line.to))) {
+            addMark(from, to, "lp-syntax-dim")
+          } else {
+            const hasSpace = to < docLen && state.doc.sliceString(to, to + 1) === " "
+            addReplace(from, to + (hasSpace ? 1 : 0))
           }
           return false
         }
@@ -702,6 +765,38 @@ const editorTheme = EditorView.baseTheme({
     fontFamily: '"Maple Mono NF CN", "SF Mono", monospace',
     fontSize: "0.88em",
     background: "var(--mn-code-bg)",
+  },
+  ".lp-fenced-first": {
+    position: "relative",
+  },
+  ".lp-copy-btn": {
+    position: "absolute",
+    right: "0",
+    top: "50%",
+    transform: "translateY(-50%)",
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "22px",
+    height: "22px",
+    borderRadius: "4px",
+    background: "rgba(128,128,128,0.12)",
+    color: "rgba(128,128,128,0.6)",
+    cursor: "pointer",
+    userSelect: "none",
+    opacity: "1",
+    transition: "background 0.1s",
+    lineHeight: "1",
+  },
+  ".lp-copy-btn:hover": {
+    background: "rgba(128,128,128,0.22)",
+    color: "rgba(80,80,80,0.9)",
+  },
+  ".lp-blockquote": {
+    borderLeft: "3px solid var(--mn-bq-border)",
+    background: "var(--mn-bq-bg)",
+    paddingLeft: "12px",
+    color: "var(--mn-bq-color)",
   },
   ".lp-link": {
     color: "#4a7cf7",
