@@ -903,6 +903,7 @@ function buildExtensions() {
     readOnlyCompartment.of(EditorState.readOnly.of(false)),
     editableCompartment.of(EditorView.editable.of(true)),
     EditorView.lineWrapping,
+    EditorView.contentAttributes.of({ spellcheck: "true", autocorrect: "on" }),
     drawSelection(),
     livePreviewPlugin,
     interactionHandlers,
