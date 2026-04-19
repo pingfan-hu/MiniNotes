@@ -104,6 +104,7 @@ struct ContentView: View {
         .onChange(of: notesStore.isFileOpen) { isOpen in
             if isOpen { setEditorMode(.edit) }
         }
+        .background(ModeShortcutHandler { mode in setEditorMode(mode) })
     }
 
     private func setEditorMode(_ mode: EditorMode) {
@@ -130,6 +131,48 @@ struct ContentView: View {
     }
 }
 
+// MARK: - Keyboard shortcuts (Cmd+1/2/3)
+
+/// Installs a local NSEvent monitor for Cmd+1/2/3 to switch editor modes.
+/// The monitor is active only while the view (and thus the popover) is visible.
+private struct ModeShortcutHandler: NSViewRepresentable {
+    let onModeChange: (EditorMode) -> Void
+
+    func makeNSView(context: Context) -> NSView {
+        let view = NSView()
+        context.coordinator.monitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
+            guard event.modifierFlags.contains(.command) else { return event }
+            let mode: EditorMode?
+            switch event.charactersIgnoringModifiers {
+            case "1": mode = .source
+            case "2": mode = .edit
+            case "3": mode = .view
+            default: mode = nil
+            }
+            if let mode {
+                onModeChange(mode)
+                return nil // consume the event
+            }
+            return event
+        }
+        return view
+    }
+
+    func updateNSView(_ nsView: NSView, context: Context) {}
+
+    static func dismantleNSView(_ nsView: NSView, coordinator: Coordinator) {
+        if let monitor = coordinator.monitor {
+            NSEvent.removeMonitor(monitor)
+        }
+    }
+
+    func makeCoordinator() -> Coordinator { Coordinator() }
+
+    class Coordinator {
+        var monitor: Any?
+    }
+}
+
 // MARK: - Mode buttons
 
 private struct ModeButtonGroup: View {
@@ -146,7 +189,7 @@ private struct ModeButtonGroup: View {
                 onSelect: onSelect
             )
             ModeButton(
-                icon: "pencil",
+                icon: "pencil.and.outline",
                 mode: .edit,
                 current: current,
                 tooltip: L.modeEditTooltip,

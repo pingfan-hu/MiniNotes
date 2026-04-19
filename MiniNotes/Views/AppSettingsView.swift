@@ -126,6 +126,17 @@ private struct GeneralPane: View {
                 HotkeyControls(settings: settings, badgeWidth: pickerWidth)
             }
 
+            // Auto update
+            HStack(alignment: .center, spacing: 8) {
+                Color.clear.frame(width: labelW)
+                Toggle("", isOn: $settings.autoUpdate)
+                    .labelsHidden()
+                    .toggleStyle(.checkbox)
+                Text(L.autoUpdate)
+                    .font(Font.custom("LXGWWenKai-Medium", size: 14))
+                    .fixedSize()
+            }
+
             // Launch at login
             HStack(alignment: .center, spacing: 8) {
                 Color.clear.frame(width: labelW)

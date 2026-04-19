@@ -9,6 +9,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         updaterController = SPUStandardUpdaterController(startingUpdater: true, updaterDelegate: nil, userDriverDelegate: nil)
+        AppSettings.shared.updater = updaterController?.updater
         statusBarController = StatusBarController(updaterController: updaterController)
 
         NotificationCenter.default.addObserver(self, selector: #selector(openSettings),

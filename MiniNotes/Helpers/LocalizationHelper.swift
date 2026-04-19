@@ -42,6 +42,7 @@ enum L {
     static var generalTab:          String { isChinese ? "基本设置" : "General" }
     static var aboutTab:            String { isChinese ? "关于" : "About" }
     static var languageLabel:       String { isChinese ? "语言" : "Language" }
+    static var autoUpdate:          String { isChinese ? "自动更新" : "Auto Update" }
     static var launchAtLogin:       String { isChinese ? "开机时自动启动" : "Launch at Login" }
     static var languageSystem:      String { isChinese ? "跟随系统" : "Follow System" }
     static var aboutDescription:    String { isChinese ? "免费且开源的 macOS 菜单栏 Markdown 编辑器。" : "A free and open-source macOS menu bar Markdown editor." }

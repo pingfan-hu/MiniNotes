@@ -2,6 +2,7 @@ import AppKit
 import Combine
 import Foundation
 import ServiceManagement
+import Sparkle
 
 // MARK: - Enums
 
@@ -35,11 +36,23 @@ class AppSettings: ObservableObject {
         }
     }
 
+    @Published var autoUpdate: Bool {
+        didSet {
+            UserDefaults.standard.set(autoUpdate, forKey: "autoUpdate")
+            applyAutoUpdate()
+        }
+    }
+
     @Published var launchAtLogin: Bool {
         didSet {
             UserDefaults.standard.set(launchAtLogin, forKey: "launchAtLogin")
             applyLaunchAtLogin()
         }
+    }
+
+    /// Set by AppDelegate after creating the Sparkle updater controller.
+    var updater: SPUUpdater? {
+        didSet { applyAutoUpdate() }
     }
 
     @Published var hotkeyKeyCode: UInt32 {
@@ -68,6 +81,7 @@ class AppSettings: ObservableObject {
     private init() {
         let rawLanguage = UserDefaults.standard.string(forKey: "appLanguage") ?? "system"
         self.appLanguage = AppLanguage(rawValue: rawLanguage) ?? .system
+        self.autoUpdate = UserDefaults.standard.object(forKey: "autoUpdate") as? Bool ?? true
         self.launchAtLogin = UserDefaults.standard.bool(forKey: "launchAtLogin")
 
         let savedKeyCode = UserDefaults.standard.integer(forKey: "hotkeyKeyCode")
@@ -79,6 +93,12 @@ class AppSettings: ObservableObject {
         self.hotkeyCarbonModifiers = savedMods != 0
             ? UInt32(savedMods)
             : HotkeyManager.defaultCarbonModifiers
+    }
+
+    private func applyAutoUpdate() {
+        guard let updater else { return }
+        updater.automaticallyChecksForUpdates = autoUpdate
+        updater.updateCheckInterval = 86400 // once per day
     }
 
     private func applyLaunchAtLogin() {
