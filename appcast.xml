@@ -8,6 +8,37 @@
 
     <!-- Latest release -->
     <item>
+      <title>Version 0.3.0</title>
+      <link>https://github.com/pingfan-hu/MiniNotes/releases/tag/v0.3.0</link>
+      <sparkle:version>0.3.0</sparkle:version>
+      <sparkle:shortVersionString>0.3.0</sparkle:shortVersionString>
+      <description><![CDATA[
+        <h2>What's New</h2>
+        <ul>
+          <li>Horizontal rule: --- lines now render as a clean divider line.</li>
+          <li>Strikethrough: ~~text~~ renders with line-through styling.</li>
+          <li>Images: ![alt](url) renders inline images in the editor.</li>
+          <li>Inline code: backtick delimiters are now hidden in preview mode.</li>
+          <li>Highlight: ==text== renders with yellow highlight background.</li>
+          <li>Footnotes: [^1] references render as superscript; definitions are styled.</li>
+          <li>Math: $inline$ and $$display$$ math styled with monospace font.</li>
+          <li>Nested blockquotes: >> and >>> now indent progressively.</li>
+          <li>HTML blocks: raw HTML is styled in dimmed monospace.</li>
+          <li>Fixed: table bottom padding reduced to eliminate extra whitespace.</li>
+        </ul>
+      ]]></description>
+      <pubDate>Sat, 19 Apr 2026 00:00:00 +0000</pubDate>
+      <enclosure
+        url="https://github.com/pingfan-hu/MiniNotes/releases/download/v0.3.0/MiniNotes-v0.3.0.dmg"
+        sparkle:version="0.3.0"
+        sparkle:shortVersionString="0.3.0"
+        length="3107511"
+        type="application/x-apple-diskimage"
+      />
+    </item>
+
+    <!-- Previous release -->
+    <item>
       <title>Version 0.2.2</title>
       <link>https://github.com/pingfan-hu/MiniNotes/releases/tag/v0.2.2</link>
       <sparkle:version>0.2.2</sparkle:version>
