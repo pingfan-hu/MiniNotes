@@ -318,7 +318,7 @@
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 0.3.0;
+				CURRENT_PROJECT_VERSION = 0.3.1;
 				ENABLE_HARDENED_RUNTIME = NO;
 				INFOPLIST_FILE = MiniNotes/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -326,7 +326,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
-				MARKETING_VERSION = 0.3.0;
+				MARKETING_VERSION = 0.3.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.pingfan.MiniNotes;
 				SDKROOT = macosx;
 				SWIFT_VERSION = 5.9;
@@ -403,7 +403,7 @@
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 0.3.0;
+				CURRENT_PROJECT_VERSION = 0.3.1;
 				ENABLE_HARDENED_RUNTIME = NO;
 				INFOPLIST_FILE = MiniNotes/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -411,7 +411,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
-				MARKETING_VERSION = 0.3.0;
+				MARKETING_VERSION = 0.3.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.pingfan.MiniNotes;
 				SDKROOT = macosx;
 				SWIFT_VERSION = 5.9;
