@@ -4,6 +4,7 @@ import { markdown, markdownLanguage } from "@codemirror/lang-markdown"
 import { syntaxTree, HighlightStyle, syntaxHighlighting } from "@codemirror/language"
 import { languages } from "@codemirror/language-data"
 import { tags as t } from "@lezer/highlight"
+import { Strikethrough } from "@lezer/markdown"
 import { defaultKeymap, historyKeymap, history } from "@codemirror/commands"
 import { marked } from "marked"
 
@@ -151,6 +152,27 @@ class CheckboxWidget extends WidgetType {
     const s = document.createElement("span")
     s.className = "lp-checkbox" + (this.checked ? " lp-checkbox-checked" : "")
     return s
+  }
+}
+
+class ImageWidget extends WidgetType {
+  constructor(src, alt) { super(); this.src = src; this.alt = alt }
+  eq(o) { return this.src === o.src && this.alt === o.alt }
+  ignoreEvent() { return true }
+  toDOM() {
+    const wrap = document.createElement("span")
+    wrap.className = "lp-image-wrap"
+    const img = document.createElement("img")
+    img.src = this.src
+    img.alt = this.alt
+    img.className = "lp-image"
+    img.draggable = false
+    img.onerror = () => {
+      wrap.textContent = `[Image not found: ${this.alt || this.src}]`
+      wrap.className = "lp-image-error"
+    }
+    wrap.appendChild(img)
+    return wrap
   }
 }
 
@@ -416,9 +438,43 @@ function buildDecorations(view) {
           return false
         }
 
+        // ── Strikethrough ────────────────────────────────────────────────────
+        if (name === "Strikethrough") {
+          if (_editorMode !== 'source' && (_editorMode === 'view' || !cursorInRange(state, from, to))) {
+            // Find StrikethroughMark children (the ~~ delimiters)
+            const marks = []
+            for (let c = node.node.firstChild; c; c = c.nextSibling) {
+              if (c.name === "StrikethroughMark") marks.push([c.from, c.to])
+            }
+            if (marks.length >= 2) {
+              const [open, close] = [marks[0], marks[marks.length - 1]]
+              addReplace(open[0], open[1]); addReplace(close[0], close[1])
+              addMark(open[1], close[0], "lp-strikethrough")
+            }
+          }
+          return false
+        }
+
         // ── Inline code ──────────────────────────────────────────────────────
         if (name === "InlineCode") {
-          if (from < to) addMark(from, to, "lp-code")
+          if (from < to) {
+            if (_editorMode !== 'source' && (_editorMode === 'view' || !cursorInRange(state, from, to))) {
+              // Find CodeMark children (the ` delimiters)
+              const marks = []
+              for (let c = node.node.firstChild; c; c = c.nextSibling) {
+                if (c.name === "CodeMark") marks.push([c.from, c.to])
+              }
+              if (marks.length >= 2) {
+                const [open, close] = [marks[0], marks[marks.length - 1]]
+                addReplace(open[0], open[1]); addReplace(close[0], close[1])
+                addMark(open[1], close[0], "lp-code")
+              } else {
+                addMark(from, to, "lp-code")
+              }
+            } else {
+              addMark(from, to, "lp-code")
+            }
+          }
           return false
         }
 
@@ -462,10 +518,33 @@ function buildDecorations(view) {
           return false
         }
 
+        // ── Image ![alt](url) ────────────────────────────────────────────────
+        if (name === "Image") {
+          if (_editorMode !== 'source' && (_editorMode === 'view' || !cursorInRange(state, from, to))) {
+            const raw = state.doc.sliceString(from, to)
+            const closeIdx = raw.indexOf("](")
+            if (closeIdx > 0) {
+              const alt = raw.slice(2, closeIdx)
+              const src = raw.slice(closeIdx + 2, raw.length - 1)
+              if (src) {
+                addLine(state.doc.lineAt(from).from, "lp-image-line")
+                addWidget(from, to, new ImageWidget(src, alt))
+              }
+            }
+          }
+          return false
+        }
+
         // ── Blockquote mark ──────────────────────────────────────────────────
         if (name === "QuoteMark") {
           const line = state.doc.lineAt(from)
-          addLine(line.from, "lp-blockquote")
+          // Count nesting depth by counting Blockquote ancestors
+          let depth = 0
+          let p = node.node.parent
+          while (p) { if (p.name === "Blockquote") depth++; p = p.parent }
+          if (depth <= 1) addLine(line.from, "lp-blockquote")
+          if (depth === 2) addLine(line.from, "lp-blockquote-2")
+          if (depth >= 3) addLine(line.from, "lp-blockquote-3")
           if (_editorMode === 'source' || (_editorMode !== 'view' && cursorOnLine(state, line.from, line.to))) {
             addMark(from, to, "lp-syntax-dim")
           } else {
@@ -507,6 +586,17 @@ function buildDecorations(view) {
         }
 
         // TaskMarker is handled inside the ListMark branch above
+
+        // ── HTML block ──────────────────────────────────────────────────────
+        if (name === "HTMLBlock" || name === "HTMLTag") {
+          const startLine = state.doc.lineAt(from)
+          const endLine   = state.doc.lineAt(Math.min(to, docLen))
+          for (let n = startLine.number; n <= endLine.number; n++) {
+            if (n < 1 || n > state.doc.lines) continue
+            addLine(state.doc.line(n).from, "lp-html-block")
+          }
+          return false
+        }
 
         // ── Horizontal rule (---) ────────────────────────────────────────────
         if (name === "HorizontalRule" && _editorMode !== 'source') {
@@ -558,6 +648,69 @@ function buildDecorations(view) {
       },
     })
   } catch (_) {}
+
+  // ── Regex-based decorations (highlight, footnotes, math) ──────────────────
+  if (_editorMode !== 'source') {
+    const doc = state.doc
+    const docText = doc.sliceString(0, docLen)
+
+    // ==highlight==
+    const hlRe = /(?<!=)==(?!=)(.+?)(?<!=)==(?!=)/g
+    let hlM
+    while ((hlM = hlRe.exec(docText)) !== null) {
+      const mFrom = hlM.index, mTo = mFrom + hlM[0].length
+      if (_editorMode === 'view' || !cursorInRange(state, mFrom, mTo)) {
+        addReplace(mFrom, mFrom + 2)
+        addReplace(mTo - 2, mTo)
+        addMark(mFrom + 2, mTo - 2, "lp-highlight")
+      }
+    }
+
+    // Footnote references [^id]  (but NOT definitions [^id]:)
+    const fnRefRe = /\[\^([^\]]+)\](?!:)/g
+    let fnM
+    while ((fnM = fnRefRe.exec(docText)) !== null) {
+      const mFrom = fnM.index, mTo = mFrom + fnM[0].length
+      if (_editorMode === 'view' || !cursorInRange(state, mFrom, mTo)) {
+        addMark(mFrom, mTo, "lp-footnote-ref")
+      }
+    }
+
+    // Footnote definitions [^id]: at start of line
+    const fnDefRe = /^(\[\^[^\]]+\]:)/gm
+    let fdM
+    while ((fdM = fnDefRe.exec(docText)) !== null) {
+      const mFrom = fdM.index, mTo = mFrom + fdM[1].length
+      addMark(mFrom, mTo, "lp-footnote-def")
+    }
+
+    // Display math $$...$$  (multi-line)
+    const dmRe = /\$\$\n([\s\S]*?)\n\$\$/g
+    let dmM
+    while ((dmM = dmRe.exec(docText)) !== null) {
+      const mFrom = dmM.index, mTo = mFrom + dmM[0].length
+      const startLine = doc.lineAt(mFrom)
+      const endLine = doc.lineAt(Math.min(mTo, docLen))
+      for (let n = startLine.number; n <= endLine.number; n++) {
+        if (n < 1 || n > doc.lines) continue
+        addLine(doc.line(n).from, "lp-math-block")
+      }
+      // Dim the $$ delimiters
+      addMark(startLine.from, startLine.to, "lp-syntax-dim")
+      if (endLine.number !== startLine.number)
+        addMark(endLine.from, endLine.to, "lp-syntax-dim")
+    }
+
+    // Inline math $...$  (single backtick-style, not $$)
+    const imRe = /(?<!\$)\$(?!\$)(.+?)(?<!\$)\$(?!\$)/g
+    let imM
+    while ((imM = imRe.exec(docText)) !== null) {
+      const mFrom = imM.index, mTo = mFrom + imM[0].length
+      if (_editorMode === 'view' || !cursorInRange(state, mFrom, mTo)) {
+        addMark(mFrom, mTo, "lp-math-inline")
+      }
+    }
+  }
 
   // Sort: line decos first, then by from asc, then to asc
   items.sort((a, b) => {
@@ -819,6 +972,18 @@ const editorTheme = EditorView.baseTheme({
     paddingLeft: "12px",
     color: "var(--mn-bq-color)",
   },
+  ".lp-blockquote-2": {
+    borderLeft: "3px solid var(--mn-bq-border)",
+    background: "var(--mn-bq-bg)",
+    paddingLeft: "24px",
+    color: "var(--mn-bq-color)",
+  },
+  ".lp-blockquote-3": {
+    borderLeft: "3px solid var(--mn-bq-border)",
+    background: "var(--mn-bq-bg)",
+    paddingLeft: "36px",
+    color: "var(--mn-bq-color)",
+  },
   ".lp-link": {
     color: "#4a7cf7",
     textDecoration: "underline",
@@ -872,6 +1037,63 @@ const editorTheme = EditorView.baseTheme({
   },
   ".lp-task-done .lp-checkbox": {
     textDecoration: "none",
+  },
+  ".lp-strikethrough": {
+    textDecoration: "line-through",
+    color: "rgba(128,128,128,0.7)",
+  },
+  ".lp-image-line": {
+    lineHeight: "0 !important",
+    fontSize: "0 !important",
+  },
+  ".lp-image-wrap": {
+    display: "block",
+    margin: "4px 0",
+  },
+  ".lp-image": {
+    maxWidth: "100%",
+    borderRadius: "4px",
+  },
+  ".lp-image-error": {
+    display: "block",
+    padding: "8px 12px",
+    color: "rgba(128,128,128,0.6)",
+    fontStyle: "italic",
+    fontSize: "14px",
+  },
+  ".lp-highlight": {
+    background: "rgba(255,208,0,0.35)",
+    borderRadius: "2px",
+    padding: "1px 0",
+  },
+  ".lp-footnote-ref": {
+    fontSize: "0.75em",
+    verticalAlign: "super",
+    color: "#4a7cf7",
+    cursor: "pointer",
+  },
+  ".lp-footnote-def": {
+    fontSize: "0.85em",
+    color: "rgba(128,128,128,0.7)",
+    fontWeight: "600",
+  },
+  ".lp-math-block": {
+    fontFamily: '"Maple Mono NF CN", "SF Mono", monospace',
+    fontSize: "0.88em",
+    background: "var(--mn-code-bg)",
+  },
+  ".lp-math-inline": {
+    fontFamily: '"Maple Mono NF CN", "SF Mono", monospace',
+    fontSize: "0.88em",
+    background: "var(--mn-inline-bg)",
+    borderRadius: "3px",
+    padding: "1px 4px",
+    color: "#7c3aed",
+  },
+  ".lp-html-block": {
+    fontFamily: '"Maple Mono NF CN", "SF Mono", monospace',
+    fontSize: "0.88em",
+    color: "rgba(128,128,128,0.6)",
   },
   ".lp-hr-line": {
     lineHeight: "0 !important",
@@ -927,7 +1149,7 @@ function buildExtensions() {
   return [
     history(),
     keymap.of([...defaultKeymap, ...historyKeymap]),
-    markdown({ base: markdownLanguage, codeLanguages: languages }),
+    markdown({ base: markdownLanguage, codeLanguages: languages, extensions: [Strikethrough] }),
     highlightCompartment.of(currentHighlightExt()),
     readOnlyCompartment.of(EditorState.readOnly.of(false)),
     editableCompartment.of(EditorView.editable.of(true)),
