@@ -154,6 +154,16 @@ class CheckboxWidget extends WidgetType {
   }
 }
 
+class HRWidget extends WidgetType {
+  eq() { return true }
+  ignoreEvent() { return true }
+  toDOM() {
+    const hr = document.createElement("hr")
+    hr.className = "lp-hr"
+    return hr
+  }
+}
+
 // Normalize a GFM table so header/separator/data rows all share the same column count.
 // Marked requires this; Obsidian is more lenient, so real-world tables may be mismatched.
 function normalizeTableMd(tableMd) {
@@ -498,6 +508,16 @@ function buildDecorations(view) {
 
         // TaskMarker is handled inside the ListMark branch above
 
+        // ── Horizontal rule (---) ────────────────────────────────────────────
+        if (name === "HorizontalRule" && _editorMode !== 'source') {
+          const line = state.doc.lineAt(from)
+          if (_editorMode === 'view' || !cursorOnLine(state, line.from, line.to)) {
+            addLine(line.from, "lp-hr-line")
+            addWidget(line.from, line.to, new HRWidget())
+          }
+          return false
+        }
+
         // ── GFM Table ────────────────────────────────────────────────────────
         if (name === "Table" && _editorMode !== 'source') {
           try {
@@ -518,6 +538,7 @@ function buildDecorations(view) {
             if (html.includes("<table")) {
               const rows = parseTableCells(state, firstLine.from, lastLine.to)
               // Replace first line with editable table widget (always rendered)
+              addLine(firstLine.from, "lp-table-host")
               addWidget(firstLine.from, firstLine.to, new TableWidget(html, rows))
               // Hide remaining table lines (rows 2..N)
               let linePos = firstLine.to + 1
@@ -852,13 +873,21 @@ const editorTheme = EditorView.baseTheme({
   ".lp-task-done .lp-checkbox": {
     textDecoration: "none",
   },
-  ".lp-table-source": {
-    fontSize: "0 !important",
+  ".lp-hr-line": {
     lineHeight: "0 !important",
-    padding: "0 !important",
-    height: "0 !important",
-    overflow: "hidden !important",
-    userSelect: "none",
+    fontSize: "0 !important",
+  },
+  ".lp-hr": {
+    border: "none",
+    borderTop: "1px solid rgba(128,128,128,0.3)",
+    margin: "calc((14px * 1.75 - 1px) / 2) 0",
+  },
+  ".lp-table-host": {
+    lineHeight: "0 !important",
+    fontSize: "0 !important",
+  },
+  ".lp-table-source": {
+    display: "none !important",
   },
   ".lp-table-wrap": {
     display: "block",
