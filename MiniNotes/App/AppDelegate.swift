@@ -26,6 +26,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         false
     }
 
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows: Bool) -> Bool {
+        // Launching the app again while it runs is the natural user reaction
+        // to a vanished menu bar icon — use it as a rescue trigger.
+        statusBarController?.healStatusItemIfNeeded()
+        return true
+    }
+
     @objc func openSettings() {
         NotificationCenter.default.post(name: .miniNotesClosePopover, object: nil)
 

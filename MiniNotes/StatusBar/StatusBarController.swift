@@ -12,18 +12,19 @@ class StatusBarController {
 
     init(updaterController: SPUStandardUpdaterController?) {
         self.updaterController = updaterController
-        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
+        statusItem = Self.createStatusItem()
         popover = NSPopover()
         popover.behavior = .applicationDefined
         popover.animates = true
 
-        if let button = statusItem.button {
-            let config = NSImage.SymbolConfiguration(pointSize: 16, weight: .medium)
-            button.image = NSImage(systemSymbolName: "square.and.pencil", accessibilityDescription: "MiniNotes")?
-                .withSymbolConfiguration(config)
-            button.action = #selector(handleClick(_:))
-            button.sendAction(on: [.leftMouseUp, .rightMouseUp])
-            button.target = self
+        configureStatusButton()
+
+        // Menu bar managers (Ice, Hidden Bar, ...) hide items by pushing them
+        // off-screen, and macOS persists that position in our own defaults, so
+        // the icon can stay invisible across relaunches. Check once the menu
+        // bar has settled and rescue the icon if that happened.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
+            self?.healStatusItemIfNeeded()
         }
 
         let contentView = ContentView().environmentObject(notesStore)
@@ -58,6 +59,48 @@ class StatusBarController {
             keyCode: settings.hotkeyKeyCode,
             carbonModifiers: settings.hotkeyCarbonModifiers
         )
+    }
+
+    // ─── Status item creation & self-healing ─────────────────────────────────
+
+    private static let autosaveName = "MiniNotes"
+    private static let preferredPositionKey = "NSStatusItem Preferred Position \(autosaveName)"
+    /// Distance from the right edge of the menu bar. Small value = rightmost
+    /// third-party slot, i.e. guaranteed visible territory.
+    private static let healedPreferredPosition: Double = 50
+
+    private static func createStatusItem() -> NSStatusItem {
+        let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
+        item.autosaveName = autosaveName
+        return item
+    }
+
+    private func configureStatusButton() {
+        guard let button = statusItem.button else { return }
+        let config = NSImage.SymbolConfiguration(pointSize: 16, weight: .medium)
+        button.image = NSImage(systemSymbolName: "square.and.pencil", accessibilityDescription: "MiniNotes")?
+            .withSymbolConfiguration(config)
+        button.action = #selector(handleClick(_:))
+        button.sendAction(on: [.leftMouseUp, .rightMouseUp])
+        button.target = self
+    }
+
+    private func statusItemIsOffscreen() -> Bool {
+        guard let window = statusItem.button?.window else { return true }
+        return !NSScreen.screens.contains { $0.frame.intersects(window.frame) }
+    }
+
+    /// Recreates the status item at a known-visible position when it has been
+    /// pushed off-screen (menu bar manager hidden section, stale persisted
+    /// position). Writing the preferred-position default before recreating is
+    /// what forces macOS to place the new item in visible territory.
+    func healStatusItemIfNeeded() {
+        guard statusItemIsOffscreen() else { return }
+        if popover.isShown { popover.performClose(nil) }
+        NSStatusBar.system.removeStatusItem(statusItem)
+        UserDefaults.standard.set(Self.healedPreferredPosition, forKey: Self.preferredPositionKey)
+        statusItem = Self.createStatusItem()
+        configureStatusButton()
     }
 
     @objc private func openSettings() {
@@ -128,6 +171,7 @@ class StatusBarController {
     }
 
     private func openPopover() {
+        healStatusItemIfNeeded()
         guard let button = statusItem.button else { return }
         notesStore.reloadFromDisk()
         NSApp.activate(ignoringOtherApps: true)
