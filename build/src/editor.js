@@ -84,8 +84,10 @@ function currentHighlightExt() {
 ;(function() {
   const s = document.createElement("style")
   s.textContent = [
-    ":root{--mn-code-bg:rgba(128,128,128,0.08);--mn-inline-bg:rgba(128,128,128,0.15);--mn-num-color:#7c619a;--mn-bq-border:#9b72cf;--mn-bq-bg:rgba(155,114,207,0.07);--mn-bq-color:#6b3fa0}",
-    "@media(prefers-color-scheme:dark){:root{--mn-code-bg:rgba(255,255,255,0.09);--mn-inline-bg:rgba(255,255,255,0.09);--mn-num-color:#a68bbf;--mn-bq-border:#b08ee0;--mn-bq-bg:rgba(155,114,207,0.1);--mn-bq-color:#c4a8e8}}",
+    ":root{--mn-cursor:#000;--mn-code-bg:rgba(128,128,128,0.08);--mn-inline-bg:rgba(128,128,128,0.15);--mn-num-color:#7c619a;--mn-bq-border:#9b72cf;--mn-bq-bg:rgba(155,114,207,0.07);--mn-bq-color:#6b3fa0}",
+    "@media(prefers-color-scheme:dark){:root{--mn-cursor:#dadada;--mn-code-bg:rgba(255,255,255,0.09);--mn-inline-bg:rgba(255,255,255,0.09);--mn-num-color:#a68bbf;--mn-bq-border:#b08ee0;--mn-bq-bg:rgba(155,114,207,0.1);--mn-bq-color:#c4a8e8}}",
+    /* drawSelection's caret defaults to black; follow the light/dark scheme instead */
+    ".cm-editor .cm-cursor{border-left-color:var(--mn-cursor)!important}",
     /* Suppress drawSelection's full-width cm-selectionBackground divs; native ::selection is used instead */
     ".cm-editor .cm-selectionBackground{background:transparent!important}",
     /* Native ::selection — WebKit renders these tightly around text (not full-width), giving correct behavior */
@@ -915,7 +917,7 @@ const editorTheme = EditorView.baseTheme({
   },
   ".cm-content": { padding: "18px 22px", minHeight: "100%" },
   ".cm-line":    { padding: "1px 0" },
-  ".cm-cursor":  { borderLeftWidth: "2px" },
+  ".cm-cursor":  { borderLeftWidth: "1px" },
   ".cm-focused": { outline: "none" },
 
   ".lp-h1": { fontSize: "1.9em",  fontWeight: "700", lineHeight: "1.3", paddingTop: "10px" },
