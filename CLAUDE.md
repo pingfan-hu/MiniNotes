@@ -8,7 +8,7 @@ MiniNotes is a macOS menu bar app (no Dock icon; `LSUIElement = true`) with a li
 
 ## Current Version
 
-**v0.1.0** — update `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION` in `project.yml` (both must match) when releasing a new version, then run `xcodegen generate`.
+**v0.3.2** — update `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION` in `project.yml` (both must match) when releasing a new version, then run `xcodegen generate`.
 
 ## Build Commands
 
@@ -37,17 +37,22 @@ xcodegen generate
 `MiniNotesApp` (SwiftUI `@main`) -> `AppDelegate` -> `StatusBarController`
 
 `StatusBarController` owns:
-- `NSStatusItem` (menu bar icon: `square.and.pencil` SF Symbol, 16pt medium)
+- `NSStatusItem` (menu bar icon: `square.and.pencil` SF Symbol, 16pt medium; `autosaveName` "MiniNotes")
 - `NSPopover` (620x500, `.applicationDefined` behavior)
 - `NotesStore` (single source of truth for note content and app state)
 - `EventMonitor` (closes popover on outside clicks)
+- Global hotkey registration via `HotkeyManager` (default ⌃⌥⌘N, customizable in Settings)
+
+**Status item self-healing**: menu bar managers (Ice, Hidden Bar) hide items by pushing them off-screen, and macOS persists that position in the app's own defaults (`NSStatusItem Preferred Position MiniNotes`), so the icon can stay invisible across relaunches. `healStatusItemIfNeeded()` detects an off-screen button window and recreates the item at a known-visible position. It runs 2s after launch, on app reopen, and before every popover open.
+
+`AppDelegate` also owns the Sparkle `SPUStandardUpdaterController` (auto-update; see Release section).
 
 ### View state machine
 
 `ContentView` switches between two root views based on `NotesStore.isFileOpen`:
 
 - **`LandingView`** — shown on fresh start (no previously stored file) or after clicking the exit button. Lets the user open an existing `.md` file, create a new one, or reopen the most recently closed file.
-- **Editor view** — toolbar (`filename | pin | Open in Obsidian | exit`) + `MarkdownEditorView` (WKWebView).
+- **Editor view** — toolbar (`pin | filename … [source|edit|view] … Open in Obsidian | exit`) + `MarkdownEditorView` (WKWebView). Editor modes switch with Cmd+1/2/3. "Open in Obsidian" launches `obsidian://open?path=` on the same file on disk (no copying; the file must live inside a vault Obsidian knows, though not necessarily the currently open one).
 
 Clicking the exit button calls `NotesStore.closeFile()`: flushes to disk, records `recentFileURL`, sets `isFileOpen = false`.
 Picking a file from `LandingView` calls `NotesStore.changeFile(to:)`: loads content, sets `isFileOpen = true`.
@@ -93,7 +98,12 @@ Decoration ordering rules: line decorations before mark decorations; overlapping
 | `MiniNotes/Views/LandingView.swift` | Landing page: file picker, reopen recent, author info |
 | `MiniNotes/Views/MarkdownEditorView.swift` | `NSViewRepresentable` wrapping WKWebView; JS bridge |
 | `MiniNotes/Views/SettingsView.swift` | File-location settings sheet (opened from toolbar filename button) |
+| `MiniNotes/Views/AppSettingsView.swift` | App Settings window (right-click menu): language, hotkey, auto-update, About |
+| `MiniNotes/Store/AppSettings.swift` | User preferences (language, hotkey, auto-update toggle), holds Sparkle updater ref |
+| `MiniNotes/Helpers/HotkeyManager.swift` | Carbon global hotkey registration |
 | `MiniNotes/Helpers/LocalizationHelper.swift` | All UI strings (EN/ZH), notification name extensions |
+| `appcast.xml` | Sparkle update feed, served from raw.githubusercontent.com on `main` |
+| `scripts/create-dmg.sh` | Signed DMG with custom background and Finder icon layout |
 | `MiniNotes/Assets.xcassets/` | App icon (notebook + pencil, lavender bg) at all required sizes |
 | `MiniNotes/Resources/editor.html` | HTML shell; JS bundle is inlined at load time |
 | `build/src/editor.js` | CodeMirror 6 editor + live-preview decorations |
@@ -107,4 +117,6 @@ All UI text uses two fonts (assumed installed in `~/Library/Fonts/`):
 
 ## Release
 
-See `~/.claude/rules/macos-sign-release.md` for the full signing, notarization, and GitHub publish workflow.
+Use the `/ph-app` skill (`~/.claude/skills/ph-app`, `resources/release.md`) for the full workflow: version bump, Release build, Developer ID signing, notarization, DMG/ZIP packaging, Sparkle signing, appcast update, and GitHub publish.
+
+Auto-update is Sparkle (SPM, `SUFeedURL` and `SUPublicEDKey` in `project.yml`). Release DMGs must be signed with the EdDSA key matching the shipped `SUPublicEDKey` — the private key lives in the login keychain ("Private key for signing Sparkle updates") with a backup in iCloud Passwords ("Sparkle EdDSA Private Key"). Verify with Sparkle's `generate_keys -p` before releasing on a new machine.
