@@ -16,16 +16,17 @@
         <h2>What's New</h2>
         <ul>
           <li>Redesigned menu bar icon: an outlined rounded-rect badge with a pen, matching the size and style of the system input method icon.</li>
+          <li>The icon inverts to a solid badge while the notes panel is open, just like the input method icon when engaged.</li>
           <li>The icon is now drawn as resolution-independent vector art, so it stays crisp and intact at every display scaling.</li>
         </ul>
       ]]></description>
-      <pubDate>Tue, 11 Aug 2026 19:29:36 +0000</pubDate>
+      <pubDate>Tue, 11 Aug 2026 20:00:04 +0000</pubDate>
       <enclosure
         url="https://github.com/pingfan-hu/MiniNotes/releases/download/v0.3.3/MiniNotes-v0.3.3.dmg"
-        sparkle:edSignature="zwkMxE6UHoBaFVGugM7SclvMEgMqZ8Z/n29RePMXk0xeIqQTstdxB94q/ejBnJ7k/ACjJ0b8niEgoAxMjHzwCg=="
+        sparkle:edSignature="Qq9DU5bxOF0s/wKKSFXdSf8an7sI/kY6azksfoYtPZJd077mwFbpVM12TDYQojU8j9/natq7wrNmmZAVVE3LAw=="
         sparkle:version="0.3.3"
         sparkle:shortVersionString="0.3.3"
-        length="3117891"
+        length="3118269"
         type="application/x-apple-diskimage"
       />
     </item>
