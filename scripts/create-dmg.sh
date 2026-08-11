@@ -68,6 +68,12 @@ cp -R "$APP_PATH" "$STAGING_DIR/${APP_NAME}.app"
 ln -s /Applications "$STAGING_DIR/Applications"
 cp "$BACKGROUND_SRC" "$STAGING_DIR/.background/$BACKGROUND_NAME"
 
+# Pre-create .fseventsd with logging disabled so it exists while we lay out
+# the window (and can be positioned out of view) instead of appearing at a
+# default position when the volume is unmounted.
+mkdir -p "$STAGING_DIR/.fseventsd"
+touch "$STAGING_DIR/.fseventsd/no_log"
+
 # Disable Spotlight indexing in staging dir
 mdutil -i off "$STAGING_DIR" >/dev/null 2>&1 || true
 
@@ -128,6 +134,14 @@ tell application "Finder"
 
         set position of item "${APP_NAME}.app" of container window to {165, 260}
         set position of item "Applications" of container window to {495, 260}
+
+        -- Park hidden housekeeping items far outside the visible window so
+        -- they stay out of sight for users who show hidden files in Finder.
+        repeat with hiddenName in {".background", ".fseventsd", ".Trashes", ".DS_Store"}
+            try
+                set position of item (hiddenName as text) of container window to {1400, 700}
+            end try
+        end repeat
 
         close
         open

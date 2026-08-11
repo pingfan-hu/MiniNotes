@@ -20,13 +20,13 @@
           <li>The icon is now drawn as resolution-independent vector art, so it stays crisp and intact at every display scaling.</li>
         </ul>
       ]]></description>
-      <pubDate>Tue, 11 Aug 2026 20:00:04 +0000</pubDate>
+      <pubDate>Tue, 11 Aug 2026 20:23:03 +0000</pubDate>
       <enclosure
         url="https://github.com/pingfan-hu/MiniNotes/releases/download/v0.3.3/MiniNotes-v0.3.3.dmg"
-        sparkle:edSignature="Qq9DU5bxOF0s/wKKSFXdSf8an7sI/kY6azksfoYtPZJd077mwFbpVM12TDYQojU8j9/natq7wrNmmZAVVE3LAw=="
+        sparkle:edSignature="QKO6UeLCCkgqLgehAFnuze7Z9pm1cuaQPh8pdtzzxc1wM7QKJL8JmyZCjAov9HxdhvitCCBjfKrrR5nahh/LBw=="
         sparkle:version="0.3.3"
         sparkle:shortVersionString="0.3.3"
-        length="3118269"
+        length="3099639"
         type="application/x-apple-diskimage"
       />
     </item>
