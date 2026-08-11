@@ -77,34 +77,47 @@ class StatusBarController {
 
     private func configureStatusButton() {
         guard let button = statusItem.button else { return }
-        button.image = Self.makeStatusIcon()
+        button.image = Self.normalIcon
         button.action = #selector(handleClick(_:))
         button.sendAction(on: [.leftMouseUp, .rightMouseUp])
         button.target = self
     }
 
-    /// Outlined rounded-rect badge with a solid pen inside, drawn as a
-    /// template image — the same construction as the system text-input-menu
-    /// badge (the "A" icon), and the same 22x16 frame, so MiniNotes matches
-    /// its menu bar neighbors exactly. Vector paths are rendered per backing
-    /// scale, so the glyph stays crisp (and in one piece) at every scaled
-    /// resolution — unlike the multi-part `square.and.pencil` SF Symbol it
-    /// replaces.
-    private static func makeStatusIcon() -> NSImage {
-        let canvas = NSSize(width: 22, height: 16)
-        let image = NSImage(size: canvas, flipped: false) { _ in
-            // Border ring, stroked centered on an inset frame. Thickness and
-            // outer corner radius measured from the system input-menu badge
-            // (2 px border, 11 px radius at 2x).
-            let border: CGFloat = 1.0
-            let outerRadius: CGFloat = 5.5
-            let inset = border / 2
-            let frame = NSRect(x: inset, y: inset, width: 22 - border, height: 16 - border)
-            let ring = NSBezierPath(roundedRect: frame, xRadius: outerRadius - inset, yRadius: outerRadius - inset)
-            ring.lineWidth = border
-            ring.stroke()
+    /// Idle icon: outlined badge with a solid pen.
+    static let normalIcon = makeStatusIcon(active: false)
+    /// Active icon (panel open): solid badge with a knocked-out pen — the
+    /// same inversion the system input-menu badge uses while engaged.
+    static let activeIcon = makeStatusIcon(active: true)
 
-            // solid pen at 45°, tip pointing bottom-left
+    /// Rounded-rect badge with a pen, drawn as a template image — the same
+    /// construction and 22x16 frame as the system text-input-menu badge (the
+    /// "A" icon), so MiniNotes matches its menu bar neighbors exactly.
+    /// `active: false` strokes the border and fills the pen; `active: true`
+    /// fills the badge and knocks the pen out. Vector paths are rendered per
+    /// backing scale, so the glyph stays crisp (and in one piece) at every
+    /// scaled resolution — unlike the multi-part `square.and.pencil` SF
+    /// Symbol it replaces.
+    private static func makeStatusIcon(active: Bool) -> NSImage {
+        let canvas = NSSize(width: 22, height: 16)
+        // Border thickness and outer corner radius measured from the system
+        // input-menu badge (2 px border, 11 px radius at 2x).
+        let border: CGFloat = 1.0
+        let outerRadius: CGFloat = 5.5
+        let image = NSImage(size: canvas, flipped: false) { _ in
+            if active {
+                NSBezierPath(roundedRect: NSRect(x: 0, y: 0, width: 22, height: 16),
+                             xRadius: outerRadius, yRadius: outerRadius).fill()
+                NSGraphicsContext.current?.compositingOperation = .destinationOut
+            } else {
+                let inset = border / 2
+                let frame = NSRect(x: inset, y: inset, width: 22 - border, height: 16 - border)
+                let ring = NSBezierPath(roundedRect: frame, xRadius: outerRadius - inset, yRadius: outerRadius - inset)
+                ring.lineWidth = border
+                ring.stroke()
+            }
+
+            // pen at 45°, tip pointing bottom-left; solid when idle,
+            // knocked out of the filled badge when active
             let ux: CGFloat = 0.7071, uy: CGFloat = 0.7071   // along the axis
             let vx: CGFloat = -0.7071, vy: CGFloat = 0.7071  // perpendicular
             let tipX: CGFloat = 6.4, tipY: CGFloat = 3.4
@@ -223,6 +236,7 @@ class StatusBarController {
         notesStore.reloadFromDisk()
         NSApp.activate(ignoringOtherApps: true)
         popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
+        button.image = Self.activeIcon
         // NSPopover sits at .popUpMenu (101). On recent macOS the system IME candidate
         // window is at the same or lower level, so it renders behind the popover.
         // Dropping to .floating (3) lets the IME appear above us while still keeping
@@ -236,6 +250,7 @@ class StatusBarController {
     private func closePopover() {
         notesStore.flush()
         popover.performClose(nil)
+        statusItem.button?.image = Self.normalIcon
         eventMonitor?.stop()
     }
 }

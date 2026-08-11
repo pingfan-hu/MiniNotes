@@ -37,7 +37,7 @@ xcodegen generate
 `MiniNotesApp` (SwiftUI `@main`) -> `AppDelegate` -> `StatusBarController`
 
 `StatusBarController` owns:
-- `NSStatusItem` (menu bar icon: custom-drawn template badge — outlined 22x16pt rounded rect with a solid pen, matching the system input-method icon; drawn in `makeStatusIcon()`; `autosaveName` "MiniNotes")
+- `NSStatusItem` (menu bar icon: custom-drawn template badge — outlined 22x16pt rounded rect with a solid pen, inverting to a filled badge while the popover is open — matching the system input-method icon; drawn in `makeStatusIcon(active:)`; `autosaveName` "MiniNotes")
 - `NSPopover` (620x500, `.applicationDefined` behavior)
 - `NotesStore` (single source of truth for note content and app state)
 - `EventMonitor` (closes popover on outside clicks)
