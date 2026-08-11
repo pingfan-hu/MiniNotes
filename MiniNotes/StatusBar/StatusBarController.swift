@@ -77,12 +77,59 @@ class StatusBarController {
 
     private func configureStatusButton() {
         guard let button = statusItem.button else { return }
-        let config = NSImage.SymbolConfiguration(pointSize: 16, weight: .medium)
-        button.image = NSImage(systemSymbolName: "square.and.pencil", accessibilityDescription: "MiniNotes")?
-            .withSymbolConfiguration(config)
+        button.image = Self.makeStatusIcon()
         button.action = #selector(handleClick(_:))
         button.sendAction(on: [.leftMouseUp, .rightMouseUp])
         button.target = self
+    }
+
+    /// Outlined rounded-rect badge with a solid pen inside, drawn as a
+    /// template image — the same construction as the system text-input-menu
+    /// badge (the "A" icon), and the same 22x16 frame, so MiniNotes matches
+    /// its menu bar neighbors exactly. Vector paths are rendered per backing
+    /// scale, so the glyph stays crisp (and in one piece) at every scaled
+    /// resolution — unlike the multi-part `square.and.pencil` SF Symbol it
+    /// replaces.
+    private static func makeStatusIcon() -> NSImage {
+        let canvas = NSSize(width: 22, height: 16)
+        let image = NSImage(size: canvas, flipped: false) { _ in
+            // Border ring, stroked centered on an inset frame. Thickness and
+            // outer corner radius measured from the system input-menu badge
+            // (2 px border, 11 px radius at 2x).
+            let border: CGFloat = 1.0
+            let outerRadius: CGFloat = 5.5
+            let inset = border / 2
+            let frame = NSRect(x: inset, y: inset, width: 22 - border, height: 16 - border)
+            let ring = NSBezierPath(roundedRect: frame, xRadius: outerRadius - inset, yRadius: outerRadius - inset)
+            ring.lineWidth = border
+            ring.stroke()
+
+            // solid pen at 45°, tip pointing bottom-left
+            let ux: CGFloat = 0.7071, uy: CGFloat = 0.7071   // along the axis
+            let vx: CGFloat = -0.7071, vy: CGFloat = 0.7071  // perpendicular
+            let tipX: CGFloat = 6.4, tipY: CGFloat = 3.4
+            let tipLen: CGFloat = 3.0, gap: CGFloat = 0.8, totalLen: CGFloat = 10.8
+            let halfWidth: CGFloat = 1.35
+            func point(_ d: CGFloat, _ side: CGFloat) -> NSPoint {
+                NSPoint(x: tipX + d * ux + side * halfWidth * vx,
+                        y: tipY + d * uy + side * halfWidth * vy)
+            }
+            func fill(_ points: [NSPoint]) {
+                let path = NSBezierPath()
+                path.move(to: points[0])
+                for p in points.dropFirst() { path.line(to: p) }
+                path.close()
+                path.fill()
+            }
+            // tip triangle, then the shaft separated by a small gap
+            fill([NSPoint(x: tipX, y: tipY), point(tipLen, 1), point(tipLen, -1)])
+            fill([point(tipLen + gap, 1), point(totalLen, 1),
+                  point(totalLen, -1), point(tipLen + gap, -1)])
+            return true
+        }
+        image.isTemplate = true
+        image.accessibilityDescription = "MiniNotes"
+        return image
     }
 
     private func statusItemIsOffscreen() -> Bool {
