@@ -8,7 +8,7 @@ MiniNotes is a macOS menu bar app (no Dock icon; `LSUIElement = true`) with a li
 
 ## Current Version
 
-**v0.3.2** — update `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION` in `project.yml` (both must match) when releasing a new version, then run `xcodegen generate`.
+**v0.3.3** — update `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION` in `project.yml` (both must match) when releasing a new version, then run `xcodegen generate`.
 
 ## Build Commands
 
@@ -37,7 +37,7 @@ xcodegen generate
 `MiniNotesApp` (SwiftUI `@main`) -> `AppDelegate` -> `StatusBarController`
 
 `StatusBarController` owns:
-- `NSStatusItem` (menu bar icon: `square.and.pencil` SF Symbol, 16pt medium; `autosaveName` "MiniNotes")
+- `NSStatusItem` (menu bar icon: custom-drawn template badge — outlined 22x16pt rounded rect with a solid pen, matching the system input-method icon; drawn in `makeStatusIcon()`; `autosaveName` "MiniNotes")
 - `NSPopover` (620x500, `.applicationDefined` behavior)
 - `NotesStore` (single source of truth for note content and app state)
 - `EventMonitor` (closes popover on outside clicks)
