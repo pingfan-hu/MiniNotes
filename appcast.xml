@@ -18,16 +18,19 @@
           <li>Formatting hotkeys: press ⌘B / ⌘I to toggle bold and italic. Smart toggling works with the cursor anywhere inside styled text, with or without the markers selected, and through nested styles like bold+italic.</li>
           <li>Nested styles now render correctly: ***bold italic*** shows as bold and italic with all markers hidden (same fix for styles nested inside strikethrough).</li>
           <li>Clicking the left or right edge of rendered styled text places the cursor before/after the markdown source and reveals it, Obsidian-style.</li>
+          <li>Dragging a selection across rendered styled text now includes the markdown markers, matching Obsidian.</li>
+          <li>Obsidian-style reveal delay: styled text reveals its source shortly after mouse selection settles, keeping the layout stable during clicks, double-clicks, and drags.</li>
+          <li>Double-click selects exactly the group under the cursor — text or markers — like plain text.</li>
           <li>Fixed invisible text selection on styled text in Preview mode.</li>
         </ul>
       ]]></description>
-      <pubDate>Wed, 12 Aug 2026 00:51:02 +0000</pubDate>
+      <pubDate>Wed, 12 Aug 2026 01:39:19 +0000</pubDate>
       <enclosure
         url="https://github.com/pingfan-hu/MiniNotes/releases/download/v0.4.0/MiniNotes-v0.4.0.dmg"
-        sparkle:edSignature="8NETJZZxpArTWhD1uFLx6I7BtfjmjP59e4OJQ+Wj6i86mEV8LAM3XQf8UDagtHdwrN1+1akgSMlrWvEuAT3DCg=="
+        sparkle:edSignature="ANICdEhDro/jNprHgDVdkJR9LINHLF+kUVy/n2Ijtf4gLD8PousVLb1ObtbWTz2IgsqPXYGPVrCwBTUg3KIVCw=="
         sparkle:version="0.4.0"
         sparkle:shortVersionString="0.4.0"
-        length="3100217"
+        length="3100544"
         type="application/x-apple-diskimage"
       />
     </item>

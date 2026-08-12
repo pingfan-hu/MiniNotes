@@ -851,26 +851,96 @@ function snapPosOutward(state, pos) {
   return p
 }
 
+// Directional variant for drag selections: expand one selection edge outward
+// through hidden markers, but only when the selection sweeps across the whole
+// construct (the opposite edge lies at or beyond its far side). This keeps
+// double-click word selection and partial in-construct drags literal.
+function snapRangeEdgeOutward(state, pos, otherEnd, dir) {
+  let p = pos
+  try {
+    const tree = syntaxTree(state)
+    for (let guard = 0; guard < 8; guard++) {
+      let moved = false
+      outer: for (const side of [1, -1]) {
+        for (let n = tree.resolveInner(p, side); n; n = n.parent) {
+          const markName = SNAP_MARKS[n.name]
+          if (!markName) continue
+          const marks = []
+          for (let c = n.firstChild; c; c = c.nextSibling) {
+            if (c.name === markName) marks.push([c.from, c.to])
+          }
+          if (marks.length < 2) continue
+          const open = marks[0], close = marks[marks.length - 1]
+          if (dir < 0 && p === open[1] && otherEnd >= n.to) { p = n.from; moved = true; break outer }
+          if (dir > 0 && p === close[0] && otherEnd <= n.from) { p = n.to; moved = true; break outer }
+        }
+      }
+      if (!moved) break
+    }
+  } catch (_) {}
+  return p
+}
+
 const edgeClickSnap = EditorState.transactionFilter.of(tr => {
   if (_editorMode === 'source') return tr
   if (!tr.selection || !tr.isUserEvent("select.pointer")) return tr
   const sel = tr.newSelection.main
-  if (!sel.empty) return tr
-  const snapped = snapPosOutward(tr.startState, sel.head)
-  if (snapped === sel.head) return tr
-  return [tr, { selection: { anchor: snapped } }]
+  if (sel.empty) {
+    const snapped = snapPosOutward(tr.startState, sel.head)
+    if (snapped === sel.head) return tr
+    return [tr, { selection: { anchor: snapped } }]
+  }
+  // Drag / shift-click: CM rebuilds the range from its internal mousedown
+  // anchor (which sits inside the hidden markers), so fix both edges here.
+  const from = snapRangeEdgeOutward(tr.startState, sel.from, sel.to, -1)
+  const to = snapRangeEdgeOutward(tr.startState, sel.to, sel.from, 1)
+  if (from === sel.from && to === sel.to) return tr
+  const forward = sel.anchor <= sel.head
+  return [tr, { selection: { anchor: forward ? from : to, head: forward ? to : from } }]
 })
 
 // ─── Plugin ───────────────────────────────────────────────────────────────────
 
+// Fired by the delayed-reveal timer to recompute decorations after a pause.
+const revealTick = StateEffect.define()
+
+// Obsidian-style delayed reveal: mouse selections don't reveal/re-render
+// styled spans immediately — the recompute runs ~250ms after the last
+// pointer event. This keeps the layout stable through multi-click gestures
+// (a double-click's second click would otherwise land on text that shifted
+// when the first click revealed the markers) and through drags. Keyboard
+// cursor movement and edits still update instantly.
+const REVEAL_DELAY_MS = 100
+
 const livePreviewPlugin = ViewPlugin.fromClass(
   class {
-    constructor(view) { this.decorations = buildDecorations(view) }
+    constructor(view) {
+      this.view = view
+      this.timer = null
+      this.decorations = buildDecorations(view)
+    }
     update(u) {
-      if (u.docChanged || u.selectionSet || u.transactions.some(tr => tr.effects.some(e => e.is(modeChangeEffect)))) {
+      const modeChanged = u.transactions.some(tr => tr.effects.some(e => e.is(modeChangeEffect)))
+      const ticked = u.transactions.some(tr => tr.effects.some(e => e.is(revealTick)))
+      const pointerOnly = u.selectionSet && !u.docChanged && u.transactions.length > 0 &&
+        u.transactions.every(tr => tr.isUserEvent("select.pointer"))
+      if (u.docChanged || modeChanged || (u.selectionSet && !pointerOnly)) {
+        this.cancelTimer()
+        this.decorations = buildDecorations(u.view)
+      } else if (pointerOnly) {
+        this.cancelTimer()
+        this.timer = setTimeout(() => {
+          this.timer = null
+          this.view.dispatch({ effects: revealTick.of(null) })
+        }, REVEAL_DELAY_MS)
+      } else if (ticked) {
         this.decorations = buildDecorations(u.view)
       }
     }
+    cancelTimer() {
+      if (this.timer) { clearTimeout(this.timer); this.timer = null }
+    }
+    destroy() { this.cancelTimer() }
   },
   { decorations: v => v.decorations },
 )
