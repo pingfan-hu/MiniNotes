@@ -25,10 +25,12 @@ This bundles and minifies `build/src/editor.js` into `MiniNotes/Resources/editor
 ```bash
 xcodebuild -project MiniNotes.xcodeproj -scheme MiniNotes -configuration Release build
 killall MiniNotes 2>/dev/null; sleep 1
-open ~/Library/Developer/Xcode/DerivedData/MiniNotes-dqmwdyrthfgyezeddoegrwdqawje/Build/Products/Release/MiniNotes.app
+ditto ~/Library/Developer/Xcode/DerivedData/MiniNotes-dqmwdyrthfgyezeddoegrwdqawje/Build/Products/Release/MiniNotes.app /Applications/MiniNotes.app
+rm -rf ~/Library/Developer/Xcode/DerivedData/MiniNotes-dqmwdyrthfgyezeddoegrwdqawje/Build/Products/Release/MiniNotes.app
+open /Applications/MiniNotes.app
 ```
 
-The user does not use Xcode for day-to-day testing — always rebuild and relaunch the app this way when a session's changes are done.
+The user does not use Xcode for day-to-day testing — always rebuild and relaunch the app this way when a session's changes are done. Install to `/Applications` and delete the DerivedData copy so the app never appears twice in Spotlight; the next build recreates the DerivedData app.
 
 ### Regenerate Xcode project (required after any change to `project.yml`)
 
