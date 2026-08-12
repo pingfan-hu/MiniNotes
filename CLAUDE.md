@@ -8,7 +8,7 @@ MiniNotes is a macOS menu bar app (no Dock icon; `LSUIElement = true`) with a li
 
 ## Current Version
 
-**v0.3.3** — update `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION` in `project.yml` (both must match) when releasing a new version, then run `xcodegen generate`.
+**v0.4.0** — update `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION` in `project.yml` (both must match) when releasing a new version, then run `xcodegen generate`.
 
 ## Build Commands
 
@@ -20,9 +20,15 @@ cd build && npm run build
 
 This bundles and minifies `build/src/editor.js` into `MiniNotes/Resources/editor-bundle.js` using esbuild. The Swift app reads this file at runtime and inlines it into the HTML.
 
-### macOS App
+### macOS App (CLI build + relaunch — preferred; do this after every change session)
 
-Open `MiniNotes.xcodeproj` in Xcode and use Cmd+R to run. There is no CLI build command configured.
+```bash
+xcodebuild -project MiniNotes.xcodeproj -scheme MiniNotes -configuration Release build
+killall MiniNotes 2>/dev/null; sleep 1
+open ~/Library/Developer/Xcode/DerivedData/MiniNotes-dqmwdyrthfgyezeddoegrwdqawje/Build/Products/Release/MiniNotes.app
+```
+
+The user does not use Xcode for day-to-day testing — always rebuild and relaunch the app this way when a session's changes are done.
 
 ### Regenerate Xcode project (required after any change to `project.yml`)
 
@@ -80,6 +86,8 @@ Built on CodeMirror 6. Key features:
 - **Tables**: rendered as interactive HTML widgets via `TableWidget` (`WidgetType`); cells are editable `contenteditable` divs.
 - **Checkboxes**: `- [ ]` / `- [x]` task list items rendered as clickable checkbox widgets.
 - **Ordered list auto-renumber**: `renumberOrderedLists` keeps list numbers correct on every edit.
+- **Formatting hotkeys** (`build/src/formatting.js`): ⌘B/⌘I smart-toggle bold `**` and italic `*`. Syntax-tree based, so toggling works with the caret anywhere inside a styled span, with or without the markers selected, and through nesting like `***bold italic***`. Headless test suite: `cd build && npm test`.
+- **Edge-click snap + touch reveal** (`edgeClickSnap` transaction filter, `cursorTouchesRange`): clicking the left/right edge of a rendered styled span (bold/italic/strikethrough/inline code) places the caret outside the whole construct (before/after the markers), and a caret touching either end of such a span reveals its raw source — Obsidian-style. Clicking mid-span reveals with the caret inside.
 - **`drawSelection` is used** — custom cursor/selection rendering eliminates WebKit ghost-caret artifacts. `emptyLineSelectionPlugin` complements it by highlighting empty lines inside selections (which `drawSelection` skips).
 
 CSS classes applied by the plugin: `lp-h1`–`lp-h6`, `lp-strong`, `lp-em`, `lp-code`, `lp-fenced-line`, `lp-link`, `lp-bullet`, `lp-bullet-line`, `lp-ordered-line`, `lp-checkbox`, `lp-checkbox-checked`, `lp-empty-in-sel`.
@@ -107,6 +115,7 @@ Decoration ordering rules: line decorations before mark decorations; overlapping
 | `MiniNotes/Assets.xcassets/` | App icon (notebook + pencil, lavender bg) at all required sizes |
 | `MiniNotes/Resources/editor.html` | HTML shell; JS bundle is inlined at load time |
 | `build/src/editor.js` | CodeMirror 6 editor + live-preview decorations |
+| `build/src/formatting.js` | ⌘B/⌘I smart formatting toggles (tests in `build/test/`) |
 | `build/package.json` | JS dependencies and esbuild script |
 
 ## Typography

@@ -1,11 +1,12 @@
 import { EditorView, ViewPlugin, Decoration, WidgetType, keymap, drawSelection } from "@codemirror/view"
-import { EditorState, RangeSetBuilder, Compartment, StateEffect } from "@codemirror/state"
+import { EditorState, RangeSetBuilder, Compartment, StateEffect, Prec } from "@codemirror/state"
 import { markdown, markdownLanguage } from "@codemirror/lang-markdown"
 import { syntaxTree, HighlightStyle, syntaxHighlighting } from "@codemirror/language"
 import { languages } from "@codemirror/language-data"
 import { tags as t } from "@lezer/highlight"
 import { Strikethrough } from "@lezer/markdown"
 import { defaultKeymap, historyKeymap, history } from "@codemirror/commands"
+import { formattingKeymap } from "./formatting.js"
 import { marked } from "marked"
 
 marked.use({ gfm: true, breaks: false })
@@ -90,8 +91,9 @@ function currentHighlightExt() {
     ".cm-editor .cm-cursor{border-left-color:var(--mn-cursor)!important}",
     /* Suppress drawSelection's full-width cm-selectionBackground divs; native ::selection is used instead */
     ".cm-editor .cm-selectionBackground{background:transparent!important}",
-    /* Native ::selection — WebKit renders these tightly around text (not full-width), giving correct behavior */
-    ".cm-editor .cm-line::selection,.cm-editor .cm-line>*::selection{background:rgba(100,130,210,0.35)!important}",
+    /* Native ::selection — WebKit renders these tightly around text (not full-width), giving correct behavior.
+       Use a descendant selector (not >) so text inside nested styled spans (e.g. ***bold italic***) highlights too */
+    ".cm-editor .cm-line::selection,.cm-editor .cm-line ::selection{background:rgba(100,130,210,0.35)!important}",
   ].join("")
   document.head.appendChild(s)
 })()
@@ -108,6 +110,16 @@ function cursorOnLine(state, lineFrom, lineTo) {
 function cursorInRange(state, from, to) {
   for (const sel of state.selection.ranges) {
     if (sel.from < to && sel.to > from) return true
+  }
+  return false
+}
+
+// Inclusive variant: also true when the cursor merely touches an edge of the
+// range. Used by inline styled spans (bold/italic/strikethrough/inline code)
+// so a caret placed right before/after the construct reveals its source.
+function cursorTouchesRange(state, from, to) {
+  for (const sel of state.selection.ranges) {
+    if (sel.from <= to && sel.to >= from) return true
   }
   return false
 }
@@ -410,57 +422,46 @@ function buildDecorations(view) {
           // No return false — allow recursion so links/bold/italic inside headings are decorated
         }
 
-        // ── Bold ─────────────────────────────────────────────────────────────
-        if (name === "StrongEmphasis") {
-          if (_editorMode !== 'source' && (_editorMode === 'view' || !cursorInRange(state, from, to))) {
-            const mr = emphasisMarks(node)
-            if (mr.length >= 2) {
-              const [open, close] = [mr[0], mr[mr.length - 1]]
-              if (open[1] < close[0]) {
-                addReplace(open[0], open[1]); addReplace(close[0], close[1])
-                addMark(open[1], close[0], "lp-strong")
-              }
+        // ── Bold / Italic ────────────────────────────────────────────────────
+        // No `return false` after decorating: descend into children so nested
+        // styling like ***bold italic*** gets both layers decorated. With the
+        // cursor inside, return false so the whole construct shows raw.
+        if (name === "StrongEmphasis" || name === "Emphasis") {
+          if (_editorMode === 'source') return false
+          if (_editorMode !== 'view' && cursorTouchesRange(state, from, to)) return false
+          const mr = emphasisMarks(node)
+          if (mr.length >= 2) {
+            const [open, close] = [mr[0], mr[mr.length - 1]]
+            if (open[1] < close[0]) {
+              addReplace(open[0], open[1]); addReplace(close[0], close[1])
+              addMark(open[1], close[0], name === "StrongEmphasis" ? "lp-strong" : "lp-em")
             }
           }
-          return false
-        }
-
-        // ── Italic ───────────────────────────────────────────────────────────
-        if (name === "Emphasis") {
-          if (_editorMode !== 'source' && (_editorMode === 'view' || !cursorInRange(state, from, to))) {
-            const mr = emphasisMarks(node)
-            if (mr.length >= 2) {
-              const [open, close] = [mr[0], mr[mr.length - 1]]
-              if (open[1] < close[0]) {
-                addReplace(open[0], open[1]); addReplace(close[0], close[1])
-                addMark(open[1], close[0], "lp-em")
-              }
-            }
-          }
-          return false
+          return
         }
 
         // ── Strikethrough ────────────────────────────────────────────────────
         if (name === "Strikethrough") {
-          if (_editorMode !== 'source' && (_editorMode === 'view' || !cursorInRange(state, from, to))) {
-            // Find StrikethroughMark children (the ~~ delimiters)
-            const marks = []
-            for (let c = node.node.firstChild; c; c = c.nextSibling) {
-              if (c.name === "StrikethroughMark") marks.push([c.from, c.to])
-            }
-            if (marks.length >= 2) {
-              const [open, close] = [marks[0], marks[marks.length - 1]]
-              addReplace(open[0], open[1]); addReplace(close[0], close[1])
-              addMark(open[1], close[0], "lp-strikethrough")
-            }
+          if (_editorMode === 'source') return false
+          if (_editorMode !== 'view' && cursorTouchesRange(state, from, to)) return false
+          // Find StrikethroughMark children (the ~~ delimiters)
+          const marks = []
+          for (let c = node.node.firstChild; c; c = c.nextSibling) {
+            if (c.name === "StrikethroughMark") marks.push([c.from, c.to])
           }
-          return false
+          if (marks.length >= 2) {
+            const [open, close] = [marks[0], marks[marks.length - 1]]
+            addReplace(open[0], open[1]); addReplace(close[0], close[1])
+            addMark(open[1], close[0], "lp-strikethrough")
+          }
+          // Descend: nested bold/italic inside ~~…~~ decorates too
+          return
         }
 
         // ── Inline code ──────────────────────────────────────────────────────
         if (name === "InlineCode") {
           if (from < to) {
-            if (_editorMode !== 'source' && (_editorMode === 'view' || !cursorInRange(state, from, to))) {
+            if (_editorMode !== 'source' && (_editorMode === 'view' || !cursorTouchesRange(state, from, to))) {
               // Find CodeMark children (the ` delimiters)
               const marks = []
               for (let c = node.node.firstChild; c; c = c.nextSibling) {
@@ -807,6 +808,59 @@ const emptyLineSelectionPlugin = ViewPlugin.fromClass(
   { decorations: v => v.decorations },
 )
 
+// ─── Edge-click snap ─────────────────────────────────────────────────────────
+// Clicking at the left/right edge of a *rendered* styled span (***aa*** shown
+// as "aa") would otherwise drop the caret just inside the hidden markers and
+// reveal the raw markdown. Snap it outside the whole construct instead, so
+// the span stays rendered and the caret sits before/after the source code.
+// Only applies to pointer clicks on spans that were rendered (cursor outside)
+// at click time; clicks on revealed raw markdown are taken literally.
+
+const SNAP_MARKS = {
+  StrongEmphasis: "EmphasisMark",
+  Emphasis: "EmphasisMark",
+  Strikethrough: "StrikethroughMark",
+  InlineCode: "CodeMark",
+}
+
+function snapPosOutward(state, pos) {
+  let p = pos
+  try {
+    const tree = syntaxTree(state)
+    // Repeat so nested constructs (***aa***) snap through every layer
+    for (let guard = 0; guard < 8; guard++) {
+      let moved = false
+      outer: for (const side of [1, -1]) {
+        for (let n = tree.resolveInner(p, side); n; n = n.parent) {
+          const markName = SNAP_MARKS[n.name]
+          if (!markName) continue
+          if (cursorTouchesRange(state, n.from, n.to)) continue // was revealed
+          const marks = []
+          for (let c = n.firstChild; c; c = c.nextSibling) {
+            if (c.name === markName) marks.push([c.from, c.to])
+          }
+          if (marks.length < 2) continue
+          const open = marks[0], close = marks[marks.length - 1]
+          if (p === open[1]) { p = n.from; moved = true; break outer }
+          if (p === close[0]) { p = n.to; moved = true; break outer }
+        }
+      }
+      if (!moved) break
+    }
+  } catch (_) {}
+  return p
+}
+
+const edgeClickSnap = EditorState.transactionFilter.of(tr => {
+  if (_editorMode === 'source') return tr
+  if (!tr.selection || !tr.isUserEvent("select.pointer")) return tr
+  const sel = tr.newSelection.main
+  if (!sel.empty) return tr
+  const snapped = snapPosOutward(tr.startState, sel.head)
+  if (snapped === sel.head) return tr
+  return [tr, { selection: { anchor: snapped } }]
+})
+
 // ─── Plugin ───────────────────────────────────────────────────────────────────
 
 const livePreviewPlugin = ViewPlugin.fromClass(
@@ -1150,6 +1204,7 @@ let _onChange = null
 function buildExtensions() {
   return [
     history(),
+    Prec.high(keymap.of(formattingKeymap)),
     keymap.of([...defaultKeymap, ...historyKeymap]),
     markdown({ base: markdownLanguage, codeLanguages: languages, extensions: [Strikethrough] }),
     highlightCompartment.of(currentHighlightExt()),
@@ -1158,6 +1213,7 @@ function buildExtensions() {
     EditorView.lineWrapping,
     EditorView.contentAttributes.of({ spellcheck: "true", autocorrect: "on" }),
     drawSelection(),
+    edgeClickSnap,
     livePreviewPlugin,
     interactionHandlers,
     editorTheme,
