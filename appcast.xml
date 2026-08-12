@@ -22,15 +22,16 @@
           <li>Obsidian-style reveal delay: styled text reveals its source shortly after mouse selection settles, keeping the layout stable during clicks, double-clicks, and drags.</li>
           <li>Double-click selects exactly the group under the cursor — text or markers — like plain text.</li>
           <li>Fixed invisible text selection on styled text in Preview mode.</li>
+          <li>⌘B/⌘I are now robust at the edges of styled text: with the cursor anywhere in a starred run (markers included), they toggle the whole construct, keep both sides balanced with at most 3 asterisks, and repair malformed runs first — rapid presses can no longer flood asterisks.</li>
         </ul>
       ]]></description>
-      <pubDate>Wed, 12 Aug 2026 01:39:19 +0000</pubDate>
+      <pubDate>Wed, 12 Aug 2026 01:56:12 +0000</pubDate>
       <enclosure
         url="https://github.com/pingfan-hu/MiniNotes/releases/download/v0.4.0/MiniNotes-v0.4.0.dmg"
-        sparkle:edSignature="ANICdEhDro/jNprHgDVdkJR9LINHLF+kUVy/n2Ijtf4gLD8PousVLb1ObtbWTz2IgsqPXYGPVrCwBTUg3KIVCw=="
+        sparkle:edSignature="Z080if+YGCHt7aXjLpQRRNuR2T2aiL8L/gKzpXnhXgzsngEKosbyRTsvgVb86vR3VZJWxaR1bu4dG/7wzrQTAQ=="
         sparkle:version="0.4.0"
         sparkle:shortVersionString="0.4.0"
-        length="3100544"
+        length="3105008"
         type="application/x-apple-diskimage"
       />
     </item>

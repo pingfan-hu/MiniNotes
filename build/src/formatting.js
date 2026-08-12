@@ -72,6 +72,20 @@ function wrapRange(state, dispatch, open, close) {
       from = word.from
       to = word.to
     } else {
+      // Caret already inside an empty pair (e.g. from a previous toggle):
+      // toggle it off instead of stacking another pair
+      const before = state.sliceDoc(Math.max(0, from - open.length), from)
+      const after = state.sliceDoc(to, Math.min(state.doc.length, to + close.length))
+      if (before === open && after === close) {
+        dispatch(state.update({
+          changes: [
+            { from: from - open.length, to: from },
+            { from: to, to: to + close.length },
+          ],
+          userEvent: "delete.format",
+        }))
+        return true
+      }
       // Not on a word: insert an empty pair with the caret inside
       dispatch(state.update({
         changes: { from, insert: open + close },
@@ -105,18 +119,69 @@ function wrapRange(state, dispatch, open, close) {
   return true
 }
 
-function toggleEmphasis(nodeName, marker) {
+// ── Star-run ("cluster") handling ───────────────────────────────────────────
+// With the caret anywhere inside `stars + text + stars` — including the
+// outermost edges — ⌘B/⌘I act on the whole construct as if its text were
+// selected. Count-based, not parse-based, so it stays correct even for runs
+// the Markdown parser can't classify (e.g. ****aa***), and such malformed
+// runs are repaired first: balanced sides, at most 3 stars each.
+
+const MAX_MARKS = 3
+
+function findStarCluster(state, from, to) {
+  const line = state.doc.lineAt(from)
+  if (to > line.to) return null
+  const re = /(\*+)([^*]+)(\*+)/g
+  let m
+  while ((m = re.exec(line.text)) !== null) {
+    const s = line.from + m.index
+    const e = s + m[0].length
+    if (s <= from && to <= e) return { s, e, left: m[1].length, right: m[3].length }
+    if (s > to) break
+  }
+  return null
+}
+
+function rewriteCluster(state, dispatch, cluster, n) {
+  dispatch(state.update({
+    changes: [
+      { from: cluster.s, to: cluster.s + cluster.left, insert: "*".repeat(n) },
+      { from: cluster.e - cluster.right, to: cluster.e, insert: "*".repeat(n) },
+    ],
+    userEvent: "input.format",
+  }))
+  return true
+}
+
+function toggleEmphasis(nodeName, bit, marker) {
   return ({ state, dispatch }) => {
     if (state.readOnly) return false
     const { from, to } = state.selection.main
+    if (from === to) {
+      const cluster = findStarCluster(state, from, to)
+      if (cluster) {
+        const { left, right } = cluster
+        const n = Math.min(MAX_MARKS, left, right)
+        // Malformed run (unequal sides or >3 stars): this press repairs it
+        if (left !== right || left > MAX_MARKS || right > MAX_MARKS) {
+          return rewriteCluster(state, dispatch, cluster, n)
+        }
+        // Well-formed: prefer the semantic tree unwrap (handles nesting
+        // context); fall back to rewriting the run by its style bits
+        // (1 = italic, 2 = bold, 3 = both).
+        const node = findStyledNode(state, nodeName, from, to)
+        if (node && unwrapNode(state, dispatch, node, "EmphasisMark")) return true
+        return rewriteCluster(state, dispatch, cluster, n ^ bit)
+      }
+    }
     const node = findStyledNode(state, nodeName, from, to)
     if (node) return unwrapNode(state, dispatch, node, "EmphasisMark")
     return wrapRange(state, dispatch, marker, marker)
   }
 }
 
-export const toggleBold = toggleEmphasis("StrongEmphasis", "**")
-export const toggleItalic = toggleEmphasis("Emphasis", "*")
+export const toggleBold = toggleEmphasis("StrongEmphasis", 2, "**")
+export const toggleItalic = toggleEmphasis("Emphasis", 1, "*")
 
 // preventDefault even when a command declines (e.g. read-only view mode), so
 // WebKit's native rich-text handlers (toggleBold: etc.) never fire on the

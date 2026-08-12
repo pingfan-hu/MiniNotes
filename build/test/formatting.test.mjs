@@ -128,6 +128,50 @@ check("multiple bolds: only enclosing one toggles", toggleBold, "**one** and **t
 check("bold multi-word selection", toggleBold, "|one two three|", "**|one two three|**")
 check("bold unwrap multi-word", toggleBold, "**one t|wo three**", "one t|wo three")
 
+// ── Star-cluster tolerance: caret anywhere in stars+text+stars ──────────────
+check("caret at far right edge: bold off", toggleBold, "say ***hello***| there", "say *hello*| there")
+check("caret at far left edge: italic off", toggleItalic, "|***hello*** there", "|**hello** there")
+check("caret inside left stars: bold off", toggleBold, "say **|*hello*** there", "say *|hello* there")
+check("caret inside right stars: italic off", toggleItalic, "say ***hello*|** there", "say **hello*|* there")
+check("caret at edge of **: italic ON via cluster", toggleItalic, "say **hello**| there", "say ***hello***| there")
+check("caret at edge of *: bold ON via cluster", toggleBold, "say *hello*| there", "say ***hello***| there")
+
+// malformed runs: the press repairs first (balanced, max 3)
+check("4/3 stars: repaired to 3/3", toggleBold, "a ****hi|*** b", "a ***hi|*** b")
+check("2/1 stars: repaired to 1/1", toggleItalic, "a **hi|* b", "a *hi|* b")
+check("runaway tail: repaired to 3/3", toggleBold, "***aa|*************************", "***aa|***")
+check("5/5 stars: repaired to 3/3", toggleItalic, "*****hi|***** x", "***hi|*** x")
+
+// empty-pair toggle-off (no more marker stacking on repeated presses)
+check("bold empty pair toggles off", toggleBold, "text **|**", "text |")
+check("italic empty pair toggles off", toggleItalic, "text *|*", "text |")
+
+// rapid alternating presses at the right edge never grow the document
+{
+  let spec = "say ***aa***| there"
+  const seq = [toggleBold, toggleItalic, toggleBold, toggleItalic, toggleBold, toggleBold]
+  let ok = true
+  let detail = spec
+  for (const cmd of seq) {
+    const r = apply(cmd, spec)
+    spec = r.result
+    detail += " -> " + spec
+    const doc = spec.replace(/\|/g, "")
+    if (/\*{4,}/.test(doc) || doc.length > "say ***aa*** there".length) { ok = false; break }
+  }
+  if (ok) { pass++; console.log("✓ rapid ⌘B/⌘I at edge never exceeds 3 stars") }
+  else { fail++; failures.push("✗ rapid ⌘B/⌘I at edge never exceeds 3 stars\n    " + detail) }
+}
+
+// ⌘B twice at the edge is identity (unwrap bold, then re-add via cluster)
+{
+  const once = apply(toggleBold, "say ***aa***| there")
+  const twice = apply(toggleBold, once.result)
+  const doc = twice.result.replace(/\|/g, "")
+  if (doc === "say ***aa*** there") { pass++; console.log("✓ ⌘B twice at edge is identity") }
+  else { fail++; failures.push("✗ ⌘B twice at edge is identity\n    got: " + twice.result + " (after 1x: " + once.result + ")") }
+}
+
 console.log("")
 for (const f of failures) console.error(f + "\n")
 console.log(`${pass} passed, ${fail} failed`)
