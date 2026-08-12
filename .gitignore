@@ -1,0 +1,9 @@
+# macOS
+.DS_Store
+
+# Xcode per-user state (window layout, open tabs, schemes selection)
+xcuserdata/
+
+# DMG build staging (created and removed by scripts/create-dmg.sh)
+dist/dmg-temp/
+dist/dmg-staging/
