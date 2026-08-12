@@ -7,6 +7,7 @@ import { tags as t } from "@lezer/highlight"
 import { Strikethrough } from "@lezer/markdown"
 import { defaultKeymap, historyKeymap, history } from "@codemirror/commands"
 import { formattingKeymap } from "./formatting.js"
+import { listKeymap, orderedListRenumberChanges } from "./lists.js"
 import { marked } from "marked"
 
 marked.use({ gfm: true, breaks: false })
@@ -562,6 +563,22 @@ function buildDecorations(view) {
           const parent = node.node.parent
           const grandparentName = parent?.parent?.name
           if (parent?.name === "ListItem") {
+            // Indent guides: mark each leading indent unit (a tab, or a run
+            // of up to 4 spaces) so CSS can draw a vertical line per level.
+            const line = state.doc.lineAt(from)
+            let p = line.from
+            while (p < from) {
+              const ch = state.doc.sliceString(p, p + 1)
+              if (ch === "\t") {
+                addMark(p, p + 1, "lp-indent-guide")
+                p += 1
+              } else if (ch === " ") {
+                let end = p + 1
+                while (end < from && end - p < 4 && state.doc.sliceString(end, end + 1) === " ") end++
+                addMark(p, end, "lp-indent-guide")
+                p = end
+              } else break
+            }
             const hasSpace = to < docLen && state.doc.sliceString(to, to + 1) === " "
             if (hasSpace) {
               if (grandparentName === "BulletList") {
@@ -744,34 +761,7 @@ function buildDecorations(view) {
 const renumberEffect = StateEffect.define()
 
 function renumberOrderedLists(view) {
-  const { state } = view
-  const changes = []
-  try {
-    syntaxTree(state).iterate({
-      enter(node) {
-        if (node.name !== "OrderedList") return
-        let expectedNum = 1
-        let child = node.node.firstChild
-        while (child) {
-          if (child.name === "ListItem") {
-            const mark = child.firstChild
-            if (mark && mark.name === "ListMark") {
-              const markText = state.doc.sliceString(mark.from, mark.to)
-              const m = markText.match(/^(\d+)([.)])$/)
-              if (m) {
-                if (parseInt(m[1]) !== expectedNum) {
-                  changes.push({ from: mark.from, to: mark.from + m[1].length, insert: String(expectedNum) })
-                }
-                expectedNum++
-              }
-            }
-          }
-          child = child.nextSibling
-        }
-        return false
-      }
-    })
-  } catch (_) {}
+  const changes = orderedListRenumberChanges(view.state)
   if (changes.length > 0) {
     view.dispatch({ changes, effects: renumberEffect.of(null) })
   }
@@ -1134,6 +1124,26 @@ const editorTheme = EditorView.baseTheme({
     color: "var(--mn-num-color)",
     userSelect: "none",
   },
+  // Each indent unit (tab / space run) renders at a fixed 2em regardless of
+  // the font's whitespace metrics, so every nesting level lines up.
+  ".lp-indent-guide": {
+    display: "inline-block",
+    width: "2em",
+    position: "relative",
+  },
+  // The guide line hangs 1.5em left of the indent unit's start — exactly
+  // where the parent level's bullet/number sits (markers hang 1.5em left of
+  // their text). The inline-block is a full line-height tall, so guides on
+  // consecutive lines join into a continuous vertical line.
+  ".lp-indent-guide::before": {
+    content: "''",
+    position: "absolute",
+    left: "-1.5em",
+    top: "0",
+    bottom: "0",
+    width: "1px",
+    background: "rgba(128,128,128,0.35)",
+  },
   ".lp-checkbox": {
     display: "inline-block",
     width: "1em",
@@ -1142,7 +1152,10 @@ const editorTheme = EditorView.baseTheme({
     borderRadius: "3px",
     boxSizing: "border-box",
     verticalAlign: "middle",
-    marginRight: "0.35em",
+    // Hang 1.5em left of the text like bullets/numbers do (net advance 0),
+    // so nested checkboxes align with the indent guides.
+    marginInlineStart: "-1.5em",
+    marginRight: "0.5em",
     cursor: "pointer",
     userSelect: "none",
   },
@@ -1156,7 +1169,6 @@ const editorTheme = EditorView.baseTheme({
   },
   ".lp-task-line": {
     paddingLeft: "1.5em",
-    textIndent: "-1.5em",
   },
   ".lp-task-done": {
     textDecoration: "line-through",
@@ -1275,7 +1287,7 @@ function buildExtensions() {
   return [
     history(),
     Prec.high(keymap.of(formattingKeymap)),
-    keymap.of([...defaultKeymap, ...historyKeymap]),
+    keymap.of([...listKeymap, ...defaultKeymap, ...historyKeymap]),
     markdown({ base: markdownLanguage, codeLanguages: languages, extensions: [Strikethrough] }),
     highlightCompartment.of(currentHighlightExt()),
     readOnlyCompartment.of(EditorState.readOnly.of(false)),

@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "esbuild src/editor.js --bundle --minify --outfile=../MiniNotes/Resources/editor-bundle.js",
-    "test": "node test/formatting.test.mjs"
+    "test": "node test/formatting.test.mjs && node test/lists.test.mjs"
   },
   "dependencies": {
     "@codemirror/commands": "^6",

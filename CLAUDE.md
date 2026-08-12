@@ -8,7 +8,7 @@ MiniNotes is a macOS menu bar app (no Dock icon; `LSUIElement = true`) with a li
 
 ## Current Version
 
-**v0.4.0** — update `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION` in `project.yml` (both must match) when releasing a new version, then run `xcodegen generate`.
+**v0.4.1** — update `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION` in `project.yml` (both must match) when releasing a new version, then run `xcodegen generate`.
 
 ## Build Commands
 
@@ -89,10 +89,11 @@ Built on CodeMirror 6. Key features:
 - **Checkboxes**: `- [ ]` / `- [x]` task list items rendered as clickable checkbox widgets.
 - **Ordered list auto-renumber**: `renumberOrderedLists` keeps list numbers correct on every edit.
 - **Formatting hotkeys** (`build/src/formatting.js`): ⌘B/⌘I smart-toggle bold `**` and italic `*`. Syntax-tree based, so toggling works with the caret anywhere inside a styled span, with or without the markers selected, and through nesting like `***bold italic***`. Headless test suite: `cd build && npm test`.
+- **Nested lists** (`build/src/lists.js`): Tab/Shift-Tab indent/outdent list items (bullet, ordered, task) one level by inserting/removing a leading tab, Obsidian-style — the caret can be anywhere on the line, and range selections indent every list line they touch. Outside lists, Tab inserts a literal tab. Nested ordered lists renumber independently per level (`orderedListRenumberChanges`, called by `renumberOrderedLists`). Leading indent units get class `lp-indent-guide`, which draws Obsidian-style vertical indent guides. Tests in `build/test/lists.test.mjs`.
 - **Edge-click snap + touch reveal** (`edgeClickSnap` transaction filter, `cursorTouchesRange`): clicking the left/right edge of a rendered styled span (bold/italic/strikethrough/inline code) places the caret outside the whole construct (before/after the markers), and a caret touching either end of such a span reveals its raw source — Obsidian-style. Clicking mid-span reveals with the caret inside.
 - **`drawSelection` is used** — custom cursor/selection rendering eliminates WebKit ghost-caret artifacts. `emptyLineSelectionPlugin` complements it by highlighting empty lines inside selections (which `drawSelection` skips).
 
-CSS classes applied by the plugin: `lp-h1`–`lp-h6`, `lp-strong`, `lp-em`, `lp-code`, `lp-fenced-line`, `lp-link`, `lp-bullet`, `lp-bullet-line`, `lp-ordered-line`, `lp-checkbox`, `lp-checkbox-checked`, `lp-empty-in-sel`.
+CSS classes applied by the plugin: `lp-h1`–`lp-h6`, `lp-strong`, `lp-em`, `lp-code`, `lp-fenced-line`, `lp-link`, `lp-bullet`, `lp-bullet-line`, `lp-ordered-line`, `lp-checkbox`, `lp-checkbox-checked`, `lp-empty-in-sel`, `lp-indent-guide`.
 
 Decoration ordering rules: line decorations before mark decorations; overlapping `Decoration.replace` items are deduplicated.
 
@@ -118,6 +119,7 @@ Decoration ordering rules: line decorations before mark decorations; overlapping
 | `MiniNotes/Resources/editor.html` | HTML shell; JS bundle is inlined at load time |
 | `build/src/editor.js` | CodeMirror 6 editor + live-preview decorations |
 | `build/src/formatting.js` | ⌘B/⌘I smart formatting toggles (tests in `build/test/`) |
+| `build/src/lists.js` | Tab/Shift-Tab list indent/outdent, nested ordered-list renumbering (tests in `build/test/`) |
 | `build/package.json` | JS dependencies and esbuild script |
 
 ## Typography
